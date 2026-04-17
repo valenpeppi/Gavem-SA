@@ -1,10 +1,20 @@
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from . import crud, models, schemas, database
 
 models.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI(title="SISTEMA GAVEM SA")
+
+# Configuración de CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"], # Vite default port
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.post("/clientes/", response_model=schemas.Cliente, tags=["Maestros"])
 def crear_cliente(cliente: schemas.ClienteCreate, db: Session = Depends(database.get_db)):
