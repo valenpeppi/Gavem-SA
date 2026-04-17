@@ -92,3 +92,55 @@ class Adelanto(AdelantoCreate):
     id: int
     fecha_emision: datetime
     model_config = ConfigDict(from_attributes=True)
+
+class ClienteUpdate(BaseModel):
+    nombre: Optional[str] = None
+    cuit: Optional[str] = None
+    activo: Optional[bool] = None
+
+class TransportistaUpdate(BaseModel):
+    codTrans: Optional[int] = None
+    nomTrans: Optional[str] = None
+    cuitTrans: Optional[str] = None
+    telTrans: Optional[str] = None
+    calleTrans: Optional[str] = None
+    nroCalleTrans: Optional[str] = None
+    cp: Optional[str] = None
+    localidad: Optional[str] = None
+    provincia: Optional[str] = None
+    activo: Optional[bool] = None
+
+class TarifaUpdate(BaseModel):
+    origen: Optional[str] = None
+    destino: Optional[str] = None
+    precio_km_ton: Optional[Decimal] = None
+    fecha_desde: Optional[datetime] = None
+    fecha_hasta: Optional[datetime] = None
+    cliente_id: Optional[int] = None
+
+class ViajeUpdate(BaseModel):
+    ordenante: Optional[str] = None
+    propio_tercero: Optional[str] = None
+    chofer: Optional[str] = None
+    carta_porte: Optional[str] = None
+    mercaderia: Optional[str] = None
+    lugar_desde: Optional[str] = None
+    lugar_hasta: Optional[str] = None
+    prov_origen: Optional[str] = None
+    prov_destino: Optional[str] = None
+    kms: Optional[float] = None
+    kilos: Optional[float] = None
+    cubicaje: Optional[float] = None
+    condicion: Optional[TipoCondicion] = None
+    varios: Optional[Decimal] = None
+    comentario: Optional[str] = None
+    observaciones: Optional[str] = None
+    cliente_id: Optional[int] = None
+    transportista_id: Optional[int] = None
+
+class AdelantoUpdate(BaseModel):
+    nro_vale: Optional[str] = None
+    tipo: Optional[TipoAdelanto] = None
+    monto_total: Optional[Decimal] = None
+    transportista_id: Optional[int] = None
+    viaje_id: Optional[int] = None
