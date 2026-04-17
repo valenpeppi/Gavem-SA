@@ -1,24 +1,28 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getClientes } from '../services/api';
 import DataTable from '../components/DataTable';
+import ClienteModal from '../components/ClienteModal';
 
 const ClientesPage = () => {
   const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const fetchClientes = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await getClientes();
+      setClientes(data);
+    } catch (error) {
+      console.error("Error al obtener clientes", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchClientes = async () => {
-      try {
-        const data = await getClientes();
-        setClientes(data);
-      } catch (error) {
-        console.error("Error al obtener clientes", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchClientes();
-  }, []);
+  }, [fetchClientes]);
 
   const columns = [
     { header: 'ID', accessorKey: 'id' },
@@ -42,12 +46,21 @@ const ClientesPage = () => {
           <h2 className="text-2xl font-bold text-gray-800">Listado de Clientes</h2>
           <p className="text-gray-500 text-sm mt-1">Gestioná los clientes que ordenan los viajes.</p>
         </div>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm">
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
+        >
           + Nuevo Cliente
         </button>
       </div>
 
       <DataTable data={clientes} columns={columns} isLoading={loading} />
+
+      <ClienteModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSuccess={fetchClientes} 
+      />
     </div>
   );
 };
