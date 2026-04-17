@@ -1,31 +1,39 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getTransportistas } from '../services/api';
 import DataTable from '../components/DataTable';
+import TransportistaModal from '../components/TransportistaModal';
 
 const TransportistasPage = () => {
   const [transportistas, setTransportistas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const fetchTransportistas = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await getTransportistas();
+      setTransportistas(data);
+    } catch (error) {
+      console.error("Error al obtener transportistas", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchTransportistas = async () => {
-      try {
-        const data = await getTransportistas();
-        setTransportistas(data);
-      } catch (error) {
-        console.error("Error al obtener transportistas", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchTransportistas();
-  }, []);
+  }, [fetchTransportistas]);
 
   const columns = [
     { header: 'Cod. Int.', accessorKey: 'codTrans' },
     { header: 'Nombre', accessorKey: 'nomTrans' },
     { header: 'CUIT', accessorKey: 'cuitTrans' },
     { header: 'Teléfono', accessorKey: 'telTrans' },
+    { header: 'Calle', accessorKey: 'calleTrans' },
+    { header: 'Número', accessorKey: 'nroCalleTrans' },
+    { header: 'CP', accessorKey: 'cp' },
     { header: 'Localidad', accessorKey: 'localidad' },
+    { header: 'Provincia', accessorKey: 'provincia' },
     { 
       header: 'Estado', 
       accessorKey: 'activo',
@@ -44,12 +52,21 @@ const TransportistasPage = () => {
           <h2 className="text-2xl font-bold text-gray-800">Listado de Transportistas</h2>
           <p className="text-gray-500 text-sm mt-1">Choferes y dueños de camiones registrados.</p>
         </div>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm">
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
+        >
           + Nuevo Transportista
         </button>
       </div>
 
       <DataTable data={transportistas} columns={columns} isLoading={loading} />
+
+      <TransportistaModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSuccess={fetchTransportistas} 
+      />
     </div>
   );
 };

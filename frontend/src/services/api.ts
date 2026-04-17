@@ -27,6 +27,21 @@ export const getTransportistas = async () => {
   return response.data;
 };
 
+export const crearTransportista = async (transData: { 
+  codTrans: number; 
+  nomTrans: string; 
+  cuitTrans: string;
+  telTrans?: string;
+  localidad?: string;
+  provincia?: string;
+  cp?: string;
+  calleTrans?: string;
+  nroCalleTrans?: string;
+}) => {
+  const response = await api.post('/transportistas/', transData);
+  return response.data;
+};
+
 // --- VIAJES ---
 export const getViajes = async () => {
   const response = await api.get('/viajes/');
