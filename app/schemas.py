@@ -13,8 +13,6 @@ class TipoAdelanto(str, enum.Enum):
     VALE_EFECTIVO = "Vale Efectivo"
 
 class TarifaBase(BaseModel):
-    origen: str
-    destino: str
     precio_km_ton: Decimal
     fecha_desde: datetime
     fecha_hasta: datetime
@@ -52,6 +50,7 @@ class Transportista(TransportistaCreate):
 
 class ViajeCreate(BaseModel):
     ordenante: str
+    fecha: datetime
     propio_tercero: Optional[str] = "Tercero"
     chofer: str
     carta_porte: str
@@ -67,6 +66,19 @@ class ViajeCreate(BaseModel):
     varios: Optional[Decimal] = Decimal("0.00")
     comentario: Optional[str] = None
     observaciones: Optional[str] = None
+    tarifa_aplicada: Optional[Decimal] = None
+    importe: Optional[Decimal] = None
+    comision_8: Optional[Decimal] = None
+    neto: Optional[Decimal] = None
+    iva_21: Optional[Decimal] = None
+    adelantos_consumidos: Optional[Decimal] = Decimal("0.00")
+    saldo: Optional[Decimal] = None
+    rentabilidad: Optional[Decimal] = None
+    orden_pago: Optional[str] = None
+    factura_gavem: Optional[str] = None
+    imp_fact_gavem: Optional[Decimal] = None
+    nro_fc_transportista: Optional[str] = None
+    imp_fact_transportista: Optional[Decimal] = None
 
 class Viaje(ViajeCreate):
     id: int
@@ -111,8 +123,6 @@ class TransportistaUpdate(BaseModel):
     activo: Optional[bool] = None
 
 class TarifaUpdate(BaseModel):
-    origen: Optional[str] = None
-    destino: Optional[str] = None
     precio_km_ton: Optional[Decimal] = None
     fecha_desde: Optional[datetime] = None
     fecha_hasta: Optional[datetime] = None
@@ -135,6 +145,19 @@ class ViajeUpdate(BaseModel):
     varios: Optional[Decimal] = None
     comentario: Optional[str] = None
     observaciones: Optional[str] = None
+    tarifa_aplicada: Optional[Decimal] = None
+    importe: Optional[Decimal] = None
+    comision_8: Optional[Decimal] = None
+    neto: Optional[Decimal] = None
+    iva_21: Optional[Decimal] = None
+    adelantos_consumidos: Optional[Decimal] = None
+    saldo: Optional[Decimal] = None
+    rentabilidad: Optional[Decimal] = None
+    orden_pago: Optional[str] = None
+    factura_gavem: Optional[str] = None
+    imp_fact_gavem: Optional[Decimal] = None
+    nro_fc_transportista: Optional[str] = None
+    imp_fact_transportista: Optional[Decimal] = None
     cliente_id: Optional[int] = None
     transportista_id: Optional[int] = None
 

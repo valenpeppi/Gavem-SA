@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Truck, Users, Map, DollarSign, Menu, Bell } from 'lucide-react';
 import ClientesPage from './pages/ClientesPage';
 import TransportistasPage from './pages/TransportistasPage';
+import ViajesPage from './pages/ViajesPage';
+import TarifasPage from './pages/TarifasPage';
 
 function App() {
   const [activeTab, setActiveTab] = useState('viajes');
@@ -89,12 +91,13 @@ function App() {
         <div className="flex-1 overflow-auto p-8 bg-gray-50">
           {activeTab === 'clientes' && <ClientesPage />}
           {activeTab === 'transportistas' && <TransportistasPage />}
+          {activeTab === 'viajes' && <ViajesPage />}
+          {activeTab === 'finanzas' && <TarifasPage />}
           
-          {(activeTab !== 'clientes' && activeTab !== 'transportistas') && (
+          {(activeTab !== 'clientes' && activeTab !== 'transportistas' && activeTab !== 'viajes' && activeTab !== 'finanzas') && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 h-full flex flex-col items-center justify-center text-center">
               <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4">
-                 {activeTab === 'viajes' && <Map className="w-10 h-10" />}
-                 {activeTab === 'finanzas' && <DollarSign className="w-10 h-10" />}
+                 <DollarSign className="w-10 h-10" />
               </div>
               <h3 className="text-2xl font-bold text-gray-800 mb-2">Panel de {activeTab}</h3>
               <p className="text-gray-500 max-w-md">

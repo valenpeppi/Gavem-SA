@@ -48,4 +48,65 @@ export const getViajes = async () => {
   return response.data;
 };
 
+export const cargarViaje = async (
+  viajeData: {
+    ordenante: string;
+    fecha: string;
+    propio_tercero?: string;
+    chofer: string;
+    carta_porte: string;
+    mercaderia: string;
+    lugar_desde: string;
+    lugar_hasta: string;
+    prov_origen?: string;
+    prov_destino?: string;
+    kms: number;
+    kilos: number;
+    cubicaje?: number;
+    condicion: string;
+    varios?: number;
+    comentario?: string;
+    observaciones?: string;
+    tarifa_aplicada?: number;
+    importe?: number;
+    comision_8?: number;
+    neto?: number;
+    iva_21?: number;
+    adelantos_consumidos?: number;
+    saldo?: number;
+    rentabilidad?: number;
+    orden_pago?: string;
+    factura_gavem?: string;
+    imp_fact_gavem?: number;
+    nro_fc_transportista?: string;
+    imp_fact_transportista?: number;
+  },
+  cli_id: number,
+  trans_id: number
+) => {
+  const response = await api.post('/viajes/', viajeData, {
+    params: {
+      cli_id,
+      trans_id
+    }
+  });
+  return response.data;
+};
+
+// --- TARIFAS ---
+export const getTarifas = async () => {
+  const response = await api.get('/tarifas/');
+  return response.data;
+};
+
+export const crearTarifa = async (tarifaData: {
+  cliente_id: number;
+  precio_km_ton: number;
+  fecha_desde: string;
+  fecha_hasta: string;
+}) => {
+  const response = await api.post('/tarifas/', tarifaData);
+  return response.data;
+};
+
 export default api;

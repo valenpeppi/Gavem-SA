@@ -43,8 +43,6 @@ class Tarifa(Base):
     __tablename__ = "tarifas"
     id = Column(Integer, primary_key=True)
     cliente_id = Column(Integer, ForeignKey("clientes.id"))
-    origen = Column(String(100))
-    destino = Column(String(100))
     precio_km_ton = Column(Numeric(12, 2), nullable=False) # Precio base
     fecha_desde = Column(DateTime, nullable=False)
     fecha_hasta = Column(DateTime, nullable=False)
