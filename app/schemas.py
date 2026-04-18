@@ -22,6 +22,7 @@ class TarifaCreate(TarifaBase):
 
 class Tarifa(TarifaBase):
     id: int
+    cliente_id: int
     model_config = ConfigDict(from_attributes=True)
 
 class ClienteCreate(BaseModel):

@@ -99,30 +99,23 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
     }
   };
 
-  // Efecto para Cálculos Automáticos
+  // Efecto 1: Buscar tarifa automáticamente cuando cambia el cliente
+  useEffect(() => {
+    if (!isOpen || !clienteId) return;
+
+    const tarifaObj = tarifas.find(t => String(t.cliente_id) === String(clienteId));
+    if (tarifaObj) {
+      setTarifaAplicada(String(tarifaObj.precio_km_ton));
+    }
+  }, [clienteId, tarifas, isOpen]);
+
+  // Efecto 2: Recálculo de toda la parte financiera
   useEffect(() => {
     if (!isOpen) return;
 
-    let tarifaNum = 0;
-    
-    // Buscar si el cliente tiene tarifa
-    if (clienteId) {
-      const tarifaObj = tarifas.find(t => String(t.cliente_id) === String(clienteId));
-      if (tarifaObj) {
-        tarifaNum = parseFloat(tarifaObj.precio_km_ton) || 0;
-      }
-    }
-    
     const kmsNum = parseFloat(kms) || 0;
     const kilosNum = parseFloat(kilos) || 0;
-    
-    // Si no hay tarifa automatica, quizas el usuario tippió una? 
-    // Usamos la manual si la tarifaNum automatica es 0
-    const tarifaFinal = tarifaNum > 0 ? tarifaNum : (parseFloat(tarifaAplicada) || 0);
-    
-    if (tarifaNum > 0 && String(tarifaNum) !== tarifaAplicada) {
-       setTarifaAplicada(String(tarifaNum));
-    }
+    const tarifaFinal = parseFloat(tarifaAplicada) || 0;
 
     const toneladas = kilosNum / 1000;
     const imp = kmsNum * toneladas * tarifaFinal;
@@ -134,19 +127,18 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
     const adelantosNum = parseFloat(adelantosConsumidos) || 0;
     const sal = (imp + iva) - varNum - adelantosNum;
 
-    if (imp > 0) {
+    if (kmsNum > 0 || kilosNum > 0 || tarifaFinal > 0) {
       setImporte(imp.toFixed(2));
       setComision8(com.toFixed(2));
       setNeto(net.toFixed(2));
       setIva21(iva.toFixed(2));
       setRentabilidad(com.toFixed(2));
       setSaldo(sal.toFixed(2));
-    } else if (!kilos && !kms) {
-      // Limpiar si están vacíos
+    } else if (!kilos && !kms && !tarifaAplicada) {
       setImporte(''); setComision8(''); setNeto(''); setIva21(''); setRentabilidad(''); setSaldo('');
     }
     
-  }, [clienteId, kms, kilos, varios, adelantosConsumidos, tarifas, isOpen]);
+  }, [kms, kilos, tarifaAplicada, varios, adelantosConsumidos, isOpen]);
 
 
   if (!isOpen) return null;
