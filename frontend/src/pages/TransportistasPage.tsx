@@ -1,28 +1,11 @@
-import { useEffect, useState, useCallback } from 'react';
-import { getTransportistas } from '../services/api';
+import { useState } from 'react';
+import { useTransportistas } from '../hooks/useTransportistas';
 import DataTable from '../components/DataTable/DataTable';
 import TransportistaModal from '../components/TransportistaModal/TransportistaModal';
 
 const TransportistasPage = () => {
-  const [transportistas, setTransportistas] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { transportistas, loading, fetchTransportistas } = useTransportistas();
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const fetchTransportistas = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await getTransportistas();
-      setTransportistas(data);
-    } catch (error) {
-      console.error("Error al obtener transportistas", error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchTransportistas();
-  }, [fetchTransportistas]);
 
   const columns = [
     { header: 'Cod. Int.', accessorKey: 'codTrans' },

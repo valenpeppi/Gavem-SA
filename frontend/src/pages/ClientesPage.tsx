@@ -1,28 +1,11 @@
-import { useEffect, useState, useCallback } from 'react';
-import { getClientes } from '../services/api';
+import { useState } from 'react';
+import { useClientes } from '../hooks/useClientes';
 import DataTable from '../components/DataTable/DataTable';
 import ClienteModal from '../components/ClienteModal/ClienteModal';
 
 const ClientesPage = () => {
-  const [clientes, setClientes] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { clientes, loading, fetchClientes } = useClientes();
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const fetchClientes = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await getClientes();
-      setClientes(data);
-    } catch (error) {
-      console.error("Error al obtener clientes", error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchClientes();
-  }, [fetchClientes]);
 
   const columns = [
     { header: 'ID', accessorKey: 'id' },

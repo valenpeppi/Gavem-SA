@@ -1,28 +1,11 @@
-import { useEffect, useState, useCallback } from 'react';
-import { getViajes } from '../services/api';
+import { useState } from 'react';
+import { useViajes } from '../hooks/useViajes';
 import DataTable from '../components/DataTable/DataTable';
 import ViajeModal from '../components/ViajeModal/ViajeModal';
 
 const ViajesPage = () => {
-  const [viajes, setViajes] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { viajes, loading, fetchViajes } = useViajes();
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const fetchViajes = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await getViajes();
-      setViajes(data);
-    } catch (error) {
-      console.error("Error al obtener viajes", error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchViajes();
-  }, [fetchViajes]);
 
   const columns = [
     { header: 'Ord.', accessorKey: 'ordenante' },

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { crearTransportista } from '../../services/api';
+import React from 'react';
+import { useTransportistaModal } from '../../hooks/useTransportistaModal';
 
 interface TransportistaModalProps {
   isOpen: boolean;
@@ -8,61 +8,20 @@ interface TransportistaModalProps {
 }
 
 const TransportistaModal: React.FC<TransportistaModalProps> = ({ isOpen, onClose, onSuccess }) => {
-  const [codTrans, setCodTrans] = useState('');
-  const [nomTrans, setNomTrans] = useState('');
-  const [cuitTrans, setCuitTrans] = useState('');
-  const [telTrans, setTelTrans] = useState('');
-  const [calleTrans, setCalleTrans] = useState('');
-  const [nroCalleTrans, setNroCalleTrans] = useState('');
-  const [cp, setCp] = useState('');
-  const [localidad, setLocalidad] = useState('');
-  const [provincia, setProvincia] = useState('');
-
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const {
+    codTrans, setCodTrans,
+    nomTrans, setNomTrans,
+    cuitTrans, setCuitTrans,
+    telTrans, setTelTrans,
+    calleTrans, setCalleTrans,
+    nroCalleTrans, setNroCalleTrans,
+    cp, setCp,
+    localidad, setLocalidad,
+    provincia, setProvincia,
+    error, isSubmitting, handleSubmit
+  } = useTransportistaModal({ onSuccess, onClose });
 
   if (!isOpen) return null;
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setIsSubmitting(true);
-
-    try {
-      await crearTransportista({
-        codTrans: parseInt(codTrans),
-        nomTrans,
-        cuitTrans,
-        telTrans,
-        calleTrans,
-        nroCalleTrans,
-        cp,
-        localidad,
-        provincia
-      });
-      // Limpiar formulario
-      setCodTrans('');
-      setNomTrans('');
-      setCuitTrans('');
-      setTelTrans('');
-      setCalleTrans('');
-      setNroCalleTrans('');
-      setCp('');
-      setLocalidad('');
-      setProvincia('');
-
-      onSuccess(); // Avisarle a la página que tiene que refrescar la tabla
-      onClose();   // Cerrar el modal
-    } catch (err: any) {
-      if (err.response && err.response.data && err.response.data.detail) {
-        setError(err.response.data.detail);
-      } else {
-        setError('Ocurrió un error inesperado al guardar el transportista.');
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">

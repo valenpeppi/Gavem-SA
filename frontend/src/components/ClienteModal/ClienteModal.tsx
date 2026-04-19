@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { crearCliente } from '../../services/api';
+import React from 'react';
+import { useClienteModal } from '../../hooks/useClienteModal';
 
 interface ClienteModalProps {
   isOpen: boolean;
@@ -8,35 +8,14 @@ interface ClienteModalProps {
 }
 
 const ClienteModal: React.FC<ClienteModalProps> = ({ isOpen, onClose, onSuccess }) => {
-  const [nombre, setNombre] = useState('');
-  const [cuit, setCuit] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const {
+    nombre, setNombre,
+    cuit, setCuit,
+    error, isSubmitting,
+    handleSubmit
+  } = useClienteModal({ onSuccess, onClose });
 
   if (!isOpen) return null;
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setIsSubmitting(true);
-
-    try {
-      await crearCliente({ nombre, cuit });
-      setNombre('');
-      setCuit('');
-      onSuccess(); // Avisarle a la página que tiene que refrescar la tabla
-      onClose();   // Cerrar el modal
-    } catch (err: any) {
-      // Capturamos el error 400 que viene de FastAPI si el CUIT ya existe
-      if (err.response && err.response.data && err.response.data.detail) {
-        setError(err.response.data.detail);
-      } else {
-        setError('Ocurrió un error inesperado al guardar el cliente.');
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
