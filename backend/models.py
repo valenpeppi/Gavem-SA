@@ -1,10 +1,8 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, Enum, Numeric, Text, Boolean
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
 import enum
 from datetime import datetime
-
-Base = declarative_base()
+from .database import Base
 
 class TipoCondicion(enum.Enum):
     UNO = "1"
