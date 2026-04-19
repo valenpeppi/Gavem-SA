@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { crearTransportista } from '../services/api';
+import { crearTransportista } from '../../services/api';
 
 interface TransportistaModalProps {
   isOpen: boolean;
@@ -17,7 +17,7 @@ const TransportistaModal: React.FC<TransportistaModalProps> = ({ isOpen, onClose
   const [cp, setCp] = useState('');
   const [localidad, setLocalidad] = useState('');
   const [provincia, setProvincia] = useState('');
-  
+
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -29,9 +29,9 @@ const TransportistaModal: React.FC<TransportistaModalProps> = ({ isOpen, onClose
     setIsSubmitting(true);
 
     try {
-      await crearTransportista({ 
-        codTrans: parseInt(codTrans), 
-        nomTrans, 
+      await crearTransportista({
+        codTrans: parseInt(codTrans),
+        nomTrans,
         cuitTrans,
         telTrans,
         calleTrans,
@@ -50,7 +50,7 @@ const TransportistaModal: React.FC<TransportistaModalProps> = ({ isOpen, onClose
       setCp('');
       setLocalidad('');
       setProvincia('');
-      
+
       onSuccess(); // Avisarle a la página que tiene que refrescar la tabla
       onClose();   // Cerrar el modal
     } catch (err: any) {
@@ -67,11 +67,11 @@ const TransportistaModal: React.FC<TransportistaModalProps> = ({ isOpen, onClose
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden">
-        
+
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
           <h3 className="text-lg font-bold text-gray-800">Nuevo Transportista</h3>
-          <button 
+          <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors font-bold text-xl"
           >
@@ -93,8 +93,8 @@ const TransportistaModal: React.FC<TransportistaModalProps> = ({ isOpen, onClose
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Código Interno *
                 </label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   required
                   value={codTrans}
                   onChange={(e) => setCodTrans(e.target.value)}
@@ -102,13 +102,13 @@ const TransportistaModal: React.FC<TransportistaModalProps> = ({ isOpen, onClose
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   CUIT *
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   required
                   value={cuitTrans}
                   onChange={(e) => setCuitTrans(e.target.value)}
@@ -122,8 +122,8 @@ const TransportistaModal: React.FC<TransportistaModalProps> = ({ isOpen, onClose
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Nombre o Razón Social *
               </label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 required
                 value={nomTrans}
                 onChange={(e) => setNomTrans(e.target.value)}
@@ -131,27 +131,27 @@ const TransportistaModal: React.FC<TransportistaModalProps> = ({ isOpen, onClose
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
               />
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Teléfono
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={telTrans}
                   onChange={(e) => setTelTrans(e.target.value)}
                   placeholder="Ej. 011 4455-6677"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Localidad
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={localidad}
                   onChange={(e) => setLocalidad(e.target.value)}
                   placeholder="Ej. Rosario"
@@ -165,21 +165,21 @@ const TransportistaModal: React.FC<TransportistaModalProps> = ({ isOpen, onClose
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Provincia
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={provincia}
                   onChange={(e) => setProvincia(e.target.value)}
                   placeholder="Ej. Santa Fe"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Código Postal (CP)
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={cp}
                   onChange={(e) => setCp(e.target.value)}
                   placeholder="Ej. S2000"
@@ -193,21 +193,21 @@ const TransportistaModal: React.FC<TransportistaModalProps> = ({ isOpen, onClose
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Calle
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={calleTrans}
                   onChange={(e) => setCalleTrans(e.target.value)}
                   placeholder="Ej. San Martín"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Número
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={nroCalleTrans}
                   onChange={(e) => setNroCalleTrans(e.target.value)}
                   placeholder="Ej. 1234"
@@ -218,7 +218,7 @@ const TransportistaModal: React.FC<TransportistaModalProps> = ({ isOpen, onClose
 
             {/* Footer */}
             <div className="pt-4 flex justify-end space-x-3 mt-6">
-              <button 
+              <button
                 type="button"
                 onClick={onClose}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -226,7 +226,7 @@ const TransportistaModal: React.FC<TransportistaModalProps> = ({ isOpen, onClose
               >
                 Cancelar
               </button>
-              <button 
+              <button
                 type="submit"
                 disabled={isSubmitting}
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center"

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { crearTarifa, getClientes } from '../services/api';
+import { crearTarifa, getClientes } from '../../services/api';
 
 interface TarifaModalProps {
   isOpen: boolean;
@@ -9,12 +9,12 @@ interface TarifaModalProps {
 
 const TarifaModal: React.FC<TarifaModalProps> = ({ isOpen, onClose, onSuccess }) => {
   const [clientes, setClientes] = useState<any[]>([]);
-  
+
   const [clienteId, setClienteId] = useState('');
   const [precioKmTon, setPrecioKmTon] = useState('');
   const [fechaDesde, setFechaDesde] = useState('');
   const [fechaHasta, setFechaHasta] = useState('');
-  
+
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -57,7 +57,7 @@ const TarifaModal: React.FC<TarifaModalProps> = ({ isOpen, onClose, onSuccess })
         fecha_desde: new Date(fechaDesde).toISOString(),
         fecha_hasta: new Date(fechaHasta).toISOString()
       });
-      
+
       onSuccess();
       onClose();
     } catch (err: any) {
@@ -80,11 +80,11 @@ const TarifaModal: React.FC<TarifaModalProps> = ({ isOpen, onClose, onSuccess })
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden">
-        
+
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
           <h3 className="text-lg font-bold text-gray-800">Nueva Tarifa de Cliente</h3>
-          <button 
+          <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors font-bold text-xl"
           >
@@ -107,7 +107,7 @@ const TarifaModal: React.FC<TarifaModalProps> = ({ isOpen, onClose, onSuccess })
               <form id="tarifa-form" onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Cliente *</label>
-                  <select 
+                  <select
                     required
                     value={clienteId}
                     onChange={(e) => setClienteId(e.target.value)}
@@ -122,8 +122,8 @@ const TarifaModal: React.FC<TarifaModalProps> = ({ isOpen, onClose, onSuccess })
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Precio por KM-TON ($) *</label>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     required
                     step="0.01"
                     value={precioKmTon}
@@ -136,8 +136,8 @@ const TarifaModal: React.FC<TarifaModalProps> = ({ isOpen, onClose, onSuccess })
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Vigencia Desde *</label>
-                    <input 
-                      type="date" 
+                    <input
+                      type="date"
                       required
                       value={fechaDesde}
                       onChange={(e) => setFechaDesde(e.target.value)}
@@ -146,8 +146,8 @@ const TarifaModal: React.FC<TarifaModalProps> = ({ isOpen, onClose, onSuccess })
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Vigencia Hasta *</label>
-                    <input 
-                      type="date" 
+                    <input
+                      type="date"
                       required
                       value={fechaHasta}
                       onChange={(e) => setFechaHasta(e.target.value)}
@@ -162,7 +162,7 @@ const TarifaModal: React.FC<TarifaModalProps> = ({ isOpen, onClose, onSuccess })
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end space-x-3">
-          <button 
+          <button
             type="button"
             onClick={onClose}
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -170,7 +170,7 @@ const TarifaModal: React.FC<TarifaModalProps> = ({ isOpen, onClose, onSuccess })
           >
             Cancelar
           </button>
-          <button 
+          <button
             type="submit"
             form="tarifa-form"
             disabled={isSubmitting || isLoading}

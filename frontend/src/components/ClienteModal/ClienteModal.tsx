@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { crearCliente } from '../services/api';
+import { crearCliente } from '../../services/api';
 
 interface ClienteModalProps {
   isOpen: boolean;
@@ -41,11 +41,11 @@ const ClienteModal: React.FC<ClienteModalProps> = ({ isOpen, onClose, onSuccess 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-        
+
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
           <h3 className="text-lg font-bold text-gray-800">Nuevo Cliente</h3>
-          <button 
+          <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors font-bold text-xl"
           >
@@ -66,8 +66,8 @@ const ClienteModal: React.FC<ClienteModalProps> = ({ isOpen, onClose, onSuccess 
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Nombre o Razón Social *
               </label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 required
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
@@ -75,13 +75,13 @@ const ClienteModal: React.FC<ClienteModalProps> = ({ isOpen, onClose, onSuccess 
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 CUIT *
               </label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 required
                 value={cuit}
                 onChange={(e) => setCuit(e.target.value)}
@@ -92,7 +92,7 @@ const ClienteModal: React.FC<ClienteModalProps> = ({ isOpen, onClose, onSuccess 
 
             {/* Footer */}
             <div className="pt-4 flex justify-end space-x-3">
-              <button 
+              <button
                 type="button"
                 onClick={onClose}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -100,7 +100,7 @@ const ClienteModal: React.FC<ClienteModalProps> = ({ isOpen, onClose, onSuccess 
               >
                 Cancelar
               </button>
-              <button 
+              <button
                 type="submit"
                 disabled={isSubmitting}
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center"

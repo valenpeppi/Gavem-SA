@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { cargarViaje, getClientes, getTransportistas, getViajes, getTarifas } from '../services/api';
+import { cargarViaje, getClientes, getTransportistas, getViajes, getTarifas } from '../../services/api';
 
 interface ViajeModalProps {
   isOpen: boolean;
@@ -33,7 +33,7 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
   const [comentario, setComentario] = useState('');
   const [observaciones, setObservaciones] = useState('');
   const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
-  
+
   // Form fields - Financieros
   const [tarifaAplicada, setTarifaAplicada] = useState('');
   const [importe, setImporte] = useState('');
@@ -50,7 +50,7 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
   const [impFactGavem, setImpFactGavem] = useState('');
   const [nroFcTransportista, setNroFcTransportista] = useState('');
   const [impFactTransportista, setImpFactTransportista] = useState('');
-  
+
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -73,23 +73,23 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
       setClientes(resClientes);
       setTransportistas(resTransportistas);
       setTarifas(resTarifas);
-      
+
       // Auto-calculate ordenante
       const nextOrdenante = resViajes.length + 1;
       setOrdenante(nextOrdenante.toString());
-      
+
       // Reset form (except ordenante which is auto-calculated)
       setClienteId(''); setTransportistaId(''); setPropioTercero('Tercero'); setChofer('');
       setCartaPorte(''); setMercaderia(''); setLugarDesde(''); setLugarHasta('');
       setProvOrigen(''); setProvDestino(''); setKms(''); setKilos(''); setCubicaje('');
       setCondicion('1'); setVarios(''); setComentario(''); setObservaciones('');
       setFecha(new Date().toISOString().split('T')[0]);
-      
+
       setTarifaAplicada(''); setImporte(''); setComision8(''); setNeto(''); setIva21('');
       setAdelantosConsumidos(''); setSaldo(''); setRentabilidad('');
-      
+
       setOrdenPago(''); setFacturaGavem(''); setImpFactGavem(''); setNroFcTransportista(''); setImpFactTransportista('');
-      
+
       setError(null);
     } catch (err) {
       console.error("Error cargando datos:", err);
@@ -122,7 +122,7 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
     const com = imp * 0.08;
     const net = imp - com;
     const iva = net * 0.21;
-    
+
     const varNum = parseFloat(varios) || 0;
     const adelantosNum = parseFloat(adelantosConsumidos) || 0;
     const sal = (imp + iva) - varNum - adelantosNum;
@@ -137,7 +137,7 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
     } else if (!kilos && !kms && !tarifaAplicada) {
       setImporte(''); setComision8(''); setNeto(''); setIva21(''); setRentabilidad(''); setSaldo('');
     }
-    
+
   }, [kms, kilos, tarifaAplicada, varios, adelantosConsumidos, isOpen]);
 
 
@@ -192,7 +192,7 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
         parseInt(clienteId),
         parseInt(transportistaId)
       );
-      
+
       onSuccess();
       onClose();
     } catch (err: any) {
@@ -215,7 +215,7 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-6xl my-8 relative flex flex-col max-h-[90vh]">
-        
+
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50 rounded-t-xl shrink-0">
           <h3 className="text-xl font-bold text-gray-800 flex items-center">
@@ -224,7 +224,7 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
             </span>
             Carga de Nuevo Viaje
           </h3>
-          <button 
+          <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors font-bold text-2xl leading-none"
           >
@@ -247,9 +247,9 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
               )}
 
               <form id="viaje-form" onSubmit={handleSubmit} className="space-y-6">
-                
+
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  
+
                   {/* COLUMNA IZQUIERDA - OPERATIVA */}
                   <div className="space-y-6">
                     {/* Sección 1: Actores */}
@@ -258,7 +258,7 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Cliente *</label>
-                          <select 
+                          <select
                             required
                             value={clienteId}
                             onChange={(e) => setClienteId(e.target.value)}
@@ -272,7 +272,7 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Transportista *</label>
-                          <select 
+                          <select
                             required
                             value={transportistaId}
                             onChange={(e) => setTransportistaId(e.target.value)}
@@ -286,7 +286,7 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Propio / Tercero</label>
-                          <select 
+                          <select
                             value={propioTercero}
                             onChange={(e) => setPropioTercero(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
@@ -297,8 +297,8 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Fecha del Viaje *</label>
-                          <input 
-                            type="date" 
+                          <input
+                            type="date"
                             required
                             value={fecha}
                             onChange={(e) => setFecha(e.target.value)}
@@ -307,8 +307,8 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
                         </div>
                         <div className="md:col-span-2">
                           <label className="block text-sm font-medium text-gray-700 mb-1">Chofer *</label>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             required
                             value={chofer}
                             onChange={(e) => setChofer(e.target.value)}
@@ -325,8 +325,8 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Mercadería *</label>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             required
                             value={mercaderia}
                             onChange={(e) => setMercaderia(e.target.value)}
@@ -335,8 +335,8 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Carta de Porte *</label>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             required
                             value={cartaPorte}
                             onChange={(e) => setCartaPorte(e.target.value)}
@@ -345,8 +345,8 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Lugar Desde *</label>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             required
                             value={lugarDesde}
                             onChange={(e) => setLugarDesde(e.target.value)}
@@ -355,8 +355,8 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Lugar Hasta *</label>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             required
                             value={lugarHasta}
                             onChange={(e) => setLugarHasta(e.target.value)}
@@ -365,8 +365,8 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Kilómetros *</label>
-                          <input 
-                            type="number" 
+                          <input
+                            type="number"
                             required
                             step="0.01"
                             value={kms}
@@ -376,8 +376,8 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Kilos *</label>
-                          <input 
-                            type="number" 
+                          <input
+                            type="number"
                             required
                             step="0.01"
                             value={kilos}
@@ -387,7 +387,7 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Condición *</label>
-                          <select 
+                          <select
                             required
                             value={condicion}
                             onChange={(e) => setCondicion(e.target.value)}
@@ -399,8 +399,8 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Provincia Destino</label>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             value={provDestino}
                             onChange={(e) => setProvDestino(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
@@ -418,56 +418,56 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-blue-900 mb-1">Tarifa Aplicada</label>
-                          <input 
+                          <input
                             type="number" step="0.01" value={tarifaAplicada} onChange={(e) => setTarifaAplicada(e.target.value)}
                             className="w-full px-3 py-2 border border-blue-200 rounded-lg bg-white"
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-blue-900 mb-1">Importe</label>
-                          <input 
+                          <input
                             type="number" step="0.01" value={importe} onChange={(e) => setImporte(e.target.value)}
                             className="w-full px-3 py-2 border border-blue-200 rounded-lg bg-white"
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-blue-900 mb-1">Comisión 8%</label>
-                          <input 
+                          <input
                             type="number" step="0.01" value={comision8} onChange={(e) => setComision8(e.target.value)}
                             className="w-full px-3 py-2 border border-blue-200 rounded-lg bg-white"
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-blue-900 mb-1">Neto</label>
-                          <input 
+                          <input
                             type="number" step="0.01" value={neto} onChange={(e) => setNeto(e.target.value)}
                             className="w-full px-3 py-2 border border-blue-200 rounded-lg bg-white font-semibold text-blue-900"
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-blue-900 mb-1">IVA 21%</label>
-                          <input 
+                          <input
                             type="number" step="0.01" value={iva21} onChange={(e) => setIva21(e.target.value)}
                             className="w-full px-3 py-2 border border-blue-200 rounded-lg bg-white"
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-blue-900 mb-1">Gastos Varios</label>
-                          <input 
+                          <input
                             type="number" step="0.01" value={varios} onChange={(e) => setVarios(e.target.value)}
                             className="w-full px-3 py-2 border border-blue-200 rounded-lg bg-white"
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-blue-900 mb-1">Adelantos</label>
-                          <input 
+                          <input
                             type="number" step="0.01" value={adelantosConsumidos} onChange={(e) => setAdelantosConsumidos(e.target.value)}
                             className="w-full px-3 py-2 border border-blue-200 rounded-lg bg-white"
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-blue-900 mb-1">Saldo a Pagar</label>
-                          <input 
+                          <input
                             type="number" step="0.01" value={saldo} onChange={(e) => setSaldo(e.target.value)}
                             className="w-full px-3 py-2 border border-blue-200 rounded-lg bg-green-50 font-bold text-green-700"
                           />
@@ -481,35 +481,35 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Orden de Pago</label>
-                          <input 
+                          <input
                             type="text" value={ordenPago} onChange={(e) => setOrdenPago(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none transition-all"
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Factura GAVEM</label>
-                          <input 
+                          <input
                             type="text" value={facturaGavem} onChange={(e) => setFacturaGavem(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none transition-all"
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Nro Factura Transporte</label>
-                          <input 
+                          <input
                             type="text" value={nroFcTransportista} onChange={(e) => setNroFcTransportista(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none transition-all"
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Imp. Factura Transp. ($)</label>
-                          <input 
+                          <input
                             type="number" step="0.01" value={impFactTransportista} onChange={(e) => setImpFactTransportista(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none transition-all"
                           />
                         </div>
                         <div className="md:col-span-2">
                           <label className="block text-sm font-medium text-gray-700 mb-1">Observaciones Administrativas</label>
-                          <textarea 
+                          <textarea
                             value={observaciones}
                             onChange={(e) => setObservaciones(e.target.value)}
                             rows={2}
@@ -528,7 +528,7 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end space-x-3 shrink-0 rounded-b-xl">
-          <button 
+          <button
             type="button"
             onClick={onClose}
             className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -536,7 +536,7 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
           >
             Cancelar
           </button>
-          <button 
+          <button
             type="submit"
             form="viaje-form"
             disabled={isSubmitting || isLoading}
