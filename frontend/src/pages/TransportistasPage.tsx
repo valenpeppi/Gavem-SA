@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { getTransportistas } from '../services/api';
-import DataTable from '../components/DataTable';
-import TransportistaModal from '../components/TransportistaModal';
+import DataTable from '../components/DataTable/DataTable';
+import TransportistaModal from '../components/TransportistaModal/TransportistaModal';
 
 const TransportistasPage = () => {
   const [transportistas, setTransportistas] = useState([]);

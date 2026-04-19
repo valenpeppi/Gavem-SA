@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { getViajes } from '../services/api';
-import DataTable from '../components/DataTable';
-import ViajeModal from '../components/ViajeModal';
+import DataTable from '../components/DataTable/DataTable';
+import ViajeModal from '../components/ViajeModal/ViajeModal';
 
 const ViajesPage = () => {
   const [viajes, setViajes] = useState([]);

@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { getTarifas, getClientes } from '../services/api';
-import DataTable from '../components/DataTable';
-import TarifaModal from '../components/TarifaModal';
+import DataTable from '../components/DataTable/DataTable';
+import TarifaModal from '../components/TarifaModal/TarifaModal';
 
 const TarifasPage = () => {
   const [tarifas, setTarifas] = useState<any[]>([]);

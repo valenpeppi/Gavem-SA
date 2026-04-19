@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { getClientes } from '../services/api';
-import DataTable from '../components/DataTable';
-import ClienteModal from '../components/ClienteModal';
+import DataTable from '../components/DataTable/DataTable';
+import ClienteModal from '../components/ClienteModal/ClienteModal';
 
 const ClientesPage = () => {
   const [clientes, setClientes] = useState([]);
