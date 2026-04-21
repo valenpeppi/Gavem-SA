@@ -67,16 +67,22 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess, via
                   {/* COLUMNA IZQUIERDA - OPERATIVA */}
                   <div className="space-y-6">
                     {/* Sección 1: Actores */}
-                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                      <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 border-b pb-2">Actores y Fechas</h4>
+                    <div className={`p-4 rounded-lg border ${viajeAEditar ? 'bg-gray-100 border-gray-200' : 'bg-gray-50 border-gray-100'}`}>
+                      <div className="flex items-center justify-between mb-4 border-b pb-2">
+                        <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Actores y Fechas</h4>
+                        {viajeAEditar && (
+                          <span className="text-xs bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full font-medium">🔒 No editable</span>
+                        )}
+                      </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Cliente *</label>
                           <select
                             required
+                            disabled={!!viajeAEditar}
                             value={clienteId}
                             onChange={(e) => setClienteId(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                            className={`w-full px-3 py-2 border border-gray-300 rounded-lg outline-none transition-all ${viajeAEditar ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}`}
                           >
                             <option value="">Seleccione cliente</option>
                             {clientes.map(c => (
@@ -88,9 +94,10 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess, via
                           <label className="block text-sm font-medium text-gray-700 mb-1">Transportista *</label>
                           <select
                             required
+                            disabled={!!viajeAEditar}
                             value={transportistaId}
                             onChange={(e) => setTransportistaId(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                            className={`w-full px-3 py-2 border border-gray-300 rounded-lg outline-none transition-all ${viajeAEditar ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}`}
                           >
                             <option value="">Seleccione transportista</option>
                             {transportistas.map(t => (
@@ -101,9 +108,10 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess, via
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Propio / Tercero</label>
                           <select
+                            disabled={!!viajeAEditar}
                             value={propioTercero}
                             onChange={(e) => setPropioTercero(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                            className={`w-full px-3 py-2 border border-gray-300 rounded-lg outline-none transition-all ${viajeAEditar ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}`}
                           >
                             <option value="Propio">Propio</option>
                             <option value="Tercero">Tercero</option>
@@ -114,9 +122,10 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess, via
                           <input
                             type="date"
                             required
+                            disabled={!!viajeAEditar}
                             value={fecha}
                             onChange={(e) => setFecha(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                            className={`w-full px-3 py-2 border border-gray-300 rounded-lg outline-none transition-all ${viajeAEditar ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}`}
                           />
                         </div>
                         <div className="md:col-span-2">
@@ -124,10 +133,11 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess, via
                           <input
                             type="text"
                             required
+                            disabled={!!viajeAEditar}
                             value={chofer}
                             onChange={(e) => setChofer(e.target.value)}
                             placeholder="Nombre del chofer"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                            className={`w-full px-3 py-2 border border-gray-300 rounded-lg outline-none transition-all ${viajeAEditar ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}`}
                           />
                         </div>
                       </div>
