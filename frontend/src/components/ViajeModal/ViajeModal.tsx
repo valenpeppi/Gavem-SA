@@ -5,9 +5,10 @@ interface ViajeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  viajeAEditar?: any;
 }
 
-const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) => {
+const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess, viajeAEditar }) => {
   const {
     clientes, transportistas, ordenante, clienteId, setClienteId,
     transportistaId, setTransportistaId, propioTercero, setPropioTercero,
@@ -21,7 +22,9 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
     facturaGavem, setFacturaGavem, impFactGavem, setImpFactGavem,
     nroFcTransportista, setNroFcTransportista, impFactTransportista, setImpFactTransportista,
     error, isSubmitting, isLoading, handleSubmit
-  } = useViajeModal({ isOpen, onClose, onSuccess });
+  } = useViajeModal({ isOpen, onClose, onSuccess, viajeAEditar });
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
@@ -33,7 +36,7 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
             <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm mr-3">
               Ord #{ordenante}
             </span>
-            Carga de Nuevo Viaje
+            {viajeAEditar ? 'Editar Viaje' : 'Carga de Nuevo Viaje'}
           </h3>
           <button
             onClick={onClose}
@@ -361,7 +364,7 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess }) =
                 </svg>
                 Guardando...
               </>
-            ) : 'Registrar Viaje'}
+            ) : viajeAEditar ? 'Guardar Cambios' : 'Registrar Viaje'}
           </button>
         </div>
       </div>

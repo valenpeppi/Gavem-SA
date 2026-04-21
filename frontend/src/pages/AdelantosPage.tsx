@@ -1,12 +1,15 @@
+import { useState } from 'react';
 import { useAdelantos } from '../hooks/useAdelantos';
 import DataTable from '../components/DataTable/DataTable';
+import AdelantoModal from '../components/AdelantoModal/AdelantoModal';
 
 const AdelantosPage = () => {
   const { adelantos, loading, fetchAdelantos } = useAdelantos();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const columns = [
     { header: 'ID', accessorKey: 'id' },
-    { header: 'Nro. Vale', accessorKey: 'nro_vale' },
+    { header: 'Nro. Vale', accessorKey: 'nro_vale', cell: (row: any) => <span className="font-bold text-gray-700">{row.nro_vale}</span> },
     {
       header: 'Tipo',
       accessorKey: 'tipo',
@@ -26,8 +29,8 @@ const AdelantosPage = () => {
       accessorKey: 'fecha_emision',
       cell: (row: any) => new Date(row.fecha_emision).toLocaleDateString(),
     },
-    { header: 'Transportista ID', accessorKey: 'transportista_id' },
     { header: 'Viaje ID', accessorKey: 'viaje_id' },
+    { header: 'Observaciones', accessorKey: 'observaciones' },
   ];
 
   return (
@@ -37,11 +40,23 @@ const AdelantosPage = () => {
           <h2 className="text-2xl font-bold text-gray-800">Adelantos</h2>
           <p className="text-gray-500 text-sm mt-1">Vales de combustible y efectivo emitidos a transportistas.</p>
         </div>
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm whitespace-nowrap"
+        >
+          + Nuevo Adelanto
+        </button>
       </div>
 
       <div className="flex-1 overflow-hidden">
         <DataTable data={adelantos} columns={columns} isLoading={loading} />
       </div>
+
+      <AdelantoModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSuccess={fetchAdelantos} 
+      />
     </div>
   );
 };

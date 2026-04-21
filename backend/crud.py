@@ -10,11 +10,15 @@ def create_viaje(db: Session, viaje: schemas.ViajeCreate, cliente_id: int, trans
     
     precio = viaje.tarifa_aplicada if viaje.tarifa_aplicada is not None else (tarifa_db.precio_km_ton if tarifa_db else Decimal("0.00"))
 
+    viaje_data = viaje.model_dump()
+    viaje_data['tarifa_aplicada'] = precio
+    if hasattr(viaje_data.get('condicion'), 'name'):
+        viaje_data['condicion'] = viaje_data['condicion'].name
+
     db_viaje = models.Viaje(
-        **viaje.model_dump(),
+        **viaje_data,
         cliente_id=cliente_id,
-        transportista_id=transportista_id,
-        tarifa_aplicada=precio
+        transportista_id=transportista_id
     )
 
     # 2. Cálculos GAVEM (si no vienen provistos desde el frontend)
@@ -140,6 +144,9 @@ def update_viaje(db: Session, viaje_id: int, viaje_update: schemas.ViajeUpdate):
 
     # Actualizar los atributos provistos
     update_data = viaje_update.model_dump(exclude_unset=True)
+    if hasattr(update_data.get('condicion'), 'name'):
+        update_data['condicion'] = update_data['condicion'].name
+
     for key, value in update_data.items():
         setattr(db_obj, key, value)
     

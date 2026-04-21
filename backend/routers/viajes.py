@@ -19,3 +19,8 @@ def leer_viajes(skip: int = 0, limit: int = 100, db: Session = Depends(database.
 @router.put("/{viaje_id}", response_model=schemas.Viaje)
 def actualizar_viaje(viaje_id: int, viaje_update: schemas.ViajeUpdate, db: Session = Depends(database.get_db)):
     return controller.actualizar_viaje(db, viaje_id, viaje_update)
+
+
+@router.delete("/{viaje_id}")
+def borrar_viaje(viaje_id: int, db: Session = Depends(database.get_db)):
+    return controller.borrar_viaje(db, viaje_id)

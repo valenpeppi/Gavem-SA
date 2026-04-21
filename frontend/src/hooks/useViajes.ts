@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { getViajes } from '../services/api';
+import { getViajes, eliminarViaje as apiEliminarViaje } from '../services/api';
 
 export const useViajes = () => {
   const [viajes, setViajes] = useState([]);
@@ -21,9 +21,20 @@ export const useViajes = () => {
     fetchViajes();
   }, [fetchViajes]);
 
+  const removeViaje = async (viajeId: number) => {
+    try {
+      await apiEliminarViaje(viajeId);
+      await fetchViajes();
+    } catch (error) {
+      console.error("Error al eliminar viaje", error);
+      throw error;
+    }
+  };
+
   return {
     viajes,
     loading,
-    fetchViajes
+    fetchViajes,
+    removeViaje
   };
 };

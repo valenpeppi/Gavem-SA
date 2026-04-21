@@ -92,17 +92,20 @@ class Viaje(ViajeCreate):
     saldo: Decimal
     cliente_id: int
     transportista_id: int
+    adelantos: List['Adelanto'] = []
     model_config = ConfigDict(from_attributes=True)
 
 class AdelantoCreate(BaseModel):
-    nro_vale: str
+    nro_vale: Optional[str] = None
     tipo: TipoAdelanto
     monto_total: Decimal
+    observaciones: Optional[str] = None
     transportista_id: int
     viaje_id: Optional[int] = None
 
 class Adelanto(AdelantoCreate):
     id: int
+    nro_vale: str
     fecha_emision: datetime
     model_config = ConfigDict(from_attributes=True)
 
@@ -166,5 +169,6 @@ class AdelantoUpdate(BaseModel):
     nro_vale: Optional[str] = None
     tipo: Optional[TipoAdelanto] = None
     monto_total: Optional[Decimal] = None
+    observaciones: Optional[str] = None
     transportista_id: Optional[int] = None
     viaje_id: Optional[int] = None

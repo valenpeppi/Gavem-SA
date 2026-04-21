@@ -97,6 +97,7 @@ class Adelanto(Base):
     tipo = Column(Enum(TipoAdelanto), nullable=False)
     monto_total = Column(Numeric(12, 2), nullable=False)
     fecha_emision = Column(DateTime, default=datetime.utcnow)
+    observaciones = Column(Text, nullable=True)
     transportista_id = Column(Integer, ForeignKey("transportistas.id"))
     viaje_id = Column(Integer, ForeignKey("viajes.id"), nullable=True)
     transportista = relationship("Transportista", back_populates="adelantos")

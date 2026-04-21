@@ -88,3 +88,15 @@ def actualizar_viaje(db: Session, viaje_id: int, viaje_update: schemas.ViajeUpda
     db.commit()
     db.refresh(db_obj)
     return db_obj
+
+def borrar_viaje(db: Session, viaje_id: int):
+    db_obj = db.query(models.Viaje).filter(models.Viaje.id == viaje_id).first()
+    if not db_obj:
+        raise HTTPException(status_code=404, detail="Viaje no encontrado")
+    
+    # Delete associated adelantos
+    db.query(models.Adelanto).filter(models.Adelanto.viaje_id == viaje_id).delete()
+    
+    db.delete(db_obj)
+    db.commit()
+    return {"message": "Viaje eliminado exitosamente"}

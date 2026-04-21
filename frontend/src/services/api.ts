@@ -93,6 +93,16 @@ export const cargarViaje = async (
   return response.data;
 };
 
+export const actualizarViaje = async (viajeId: number, viajeData: any) => {
+  const response = await api.put(`/viajes/${viajeId}`, viajeData);
+  return response.data;
+};
+
+export const eliminarViaje = async (viajeId: number) => {
+  const response = await api.delete(`/viajes/${viajeId}`);
+  return response.data;
+};
+
 // --- TARIFAS ---
 export const getTarifas = async () => {
   const response = await api.get('/tarifas/');

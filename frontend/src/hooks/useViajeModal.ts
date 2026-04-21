@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
-import { cargarViaje, getClientes, getTransportistas, getViajes, getTarifas } from '../services/api';
+import { cargarViaje, actualizarViaje, getClientes, getTransportistas, getViajes, getTarifas } from '../services/api';
 
 interface UseViajeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  viajeAEditar?: any;
 }
 
-export const useViajeModal = ({ isOpen, onClose, onSuccess }: UseViajeModalProps) => {
+export const useViajeModal = ({ isOpen, onClose, onSuccess, viajeAEditar }: UseViajeModalProps) => {
   const [clientes, setClientes] = useState<any[]>([]);
   const [transportistas, setTransportistas] = useState<any[]>([]);
   const [tarifas, setTarifas] = useState<any[]>([]);
@@ -58,7 +59,7 @@ export const useViajeModal = ({ isOpen, onClose, onSuccess }: UseViajeModalProps
     if (isOpen) {
       cargarDatosIniciales();
     }
-  }, [isOpen]);
+  }, [isOpen, viajeAEditar]);
 
   const cargarDatosIniciales = async () => {
     setIsLoading(true);
@@ -73,21 +74,58 @@ export const useViajeModal = ({ isOpen, onClose, onSuccess }: UseViajeModalProps
       setTransportistas(resTransportistas);
       setTarifas(resTarifas);
 
-      // Auto-calculate ordenante
-      const nextOrdenante = resViajes.length + 1;
-      setOrdenante(nextOrdenante.toString());
+      if (viajeAEditar) {
+        setOrdenante(viajeAEditar.ordenante);
+        setClienteId(String(viajeAEditar.cliente_id));
+        setTransportistaId(String(viajeAEditar.transportista_id));
+        setPropioTercero(viajeAEditar.propio_tercero || 'Tercero');
+        setChofer(viajeAEditar.chofer || '');
+        setCartaPorte(viajeAEditar.carta_porte || '');
+        setMercaderia(viajeAEditar.mercaderia || '');
+        setLugarDesde(viajeAEditar.lugar_desde || '');
+        setLugarHasta(viajeAEditar.lugar_hasta || '');
+        setProvOrigen(viajeAEditar.prov_origen || '');
+        setProvDestino(viajeAEditar.prov_destino || '');
+        setKms(String(viajeAEditar.kms || ''));
+        setKilos(String(viajeAEditar.kilos || ''));
+        setCubicaje(String(viajeAEditar.cubicaje || ''));
+        setCondicion(viajeAEditar.condicion === 'UNO' ? '1' : (viajeAEditar.condicion === 'DOS' ? '2' : String(viajeAEditar.condicion)));
+        setVarios(String(viajeAEditar.varios || ''));
+        setComentario(viajeAEditar.comentario || '');
+        setObservaciones(viajeAEditar.observaciones || '');
+        setFecha(new Date(viajeAEditar.fecha).toISOString().split('T')[0]);
 
-      // Reset form
-      setClienteId(''); setTransportistaId(''); setPropioTercero('Tercero'); setChofer('');
-      setCartaPorte(''); setMercaderia(''); setLugarDesde(''); setLugarHasta('');
-      setProvOrigen(''); setProvDestino(''); setKms(''); setKilos(''); setCubicaje('');
-      setCondicion('1'); setVarios(''); setComentario(''); setObservaciones('');
-      setFecha(new Date().toISOString().split('T')[0]);
+        setTarifaAplicada(String(viajeAEditar.tarifa_aplicada || ''));
+        setImporte(String(viajeAEditar.importe || ''));
+        setComision8(String(viajeAEditar.comision_8 || ''));
+        setNeto(String(viajeAEditar.neto || ''));
+        setIva21(String(viajeAEditar.iva_21 || ''));
+        setAdelantosConsumidos(String(viajeAEditar.adelantos_consumidos || ''));
+        setSaldo(String(viajeAEditar.saldo || ''));
+        setRentabilidad(String(viajeAEditar.rentabilidad || ''));
 
-      setTarifaAplicada(''); setImporte(''); setComision8(''); setNeto(''); setIva21('');
-      setAdelantosConsumidos(''); setSaldo(''); setRentabilidad('');
+        setOrdenPago(viajeAEditar.orden_pago || '');
+        setFacturaGavem(viajeAEditar.factura_gavem || '');
+        setImpFactGavem(String(viajeAEditar.imp_fact_gavem || ''));
+        setNroFcTransportista(viajeAEditar.nro_fc_transportista || '');
+        setImpFactTransportista(String(viajeAEditar.imp_fact_transportista || ''));
+      } else {
+        // Auto-calculate ordenante
+        const nextOrdenante = resViajes.length > 0 ? Math.max(...resViajes.map((v: any) => parseInt(v.ordenante) || 0)) + 1 : 1;
+        setOrdenante(nextOrdenante.toString());
 
-      setOrdenPago(''); setFacturaGavem(''); setImpFactGavem(''); setNroFcTransportista(''); setImpFactTransportista('');
+        // Reset form
+        setClienteId(''); setTransportistaId(''); setPropioTercero('Tercero'); setChofer('');
+        setCartaPorte(''); setMercaderia(''); setLugarDesde(''); setLugarHasta('');
+        setProvOrigen(''); setProvDestino(''); setKms(''); setKilos(''); setCubicaje('');
+        setCondicion('1'); setVarios(''); setComentario(''); setObservaciones('');
+        setFecha(new Date().toISOString().split('T')[0]);
+
+        setTarifaAplicada(''); setImporte(''); setComision8(''); setNeto(''); setIva21('');
+        setAdelantosConsumidos(''); setSaldo(''); setRentabilidad('');
+
+        setOrdenPago(''); setFacturaGavem(''); setImpFactGavem(''); setNroFcTransportista(''); setImpFactTransportista('');
+      }
 
       setError(null);
     } catch (err) {
@@ -149,8 +187,7 @@ export const useViajeModal = ({ isOpen, onClose, onSuccess }: UseViajeModalProps
     setIsSubmitting(true);
 
     try {
-      await cargarViaje(
-        {
+      const payloadData = {
           ordenante, fecha: new Date(fecha).toISOString(), propio_tercero: propioTercero,
           chofer, carta_porte: cartaPorte, mercaderia,
           lugar_desde: lugarDesde, lugar_hasta: lugarHasta,
@@ -172,10 +209,15 @@ export const useViajeModal = ({ isOpen, onClose, onSuccess }: UseViajeModalProps
           imp_fact_gavem: parseFloat(impFactGavem) || undefined,
           nro_fc_transportista: nroFcTransportista || undefined,
           imp_fact_transportista: parseFloat(impFactTransportista) || undefined,
-        },
-        parseInt(clienteId),
-        parseInt(transportistaId)
-      );
+          cliente_id: parseInt(clienteId),
+          transportista_id: parseInt(transportistaId)
+      };
+
+      if (viajeAEditar) {
+        await actualizarViaje(viajeAEditar.id, payloadData);
+      } else {
+        await cargarViaje(payloadData, parseInt(clienteId), parseInt(transportistaId));
+      }
 
       onSuccess();
       onClose();
