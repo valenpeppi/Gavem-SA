@@ -8,6 +8,11 @@ interface ViajeModalProps {
   viajeAEditar?: any;
 }
 
+const MERCADERIAS = [
+  'Soja', 'Maíz', 'Arveja', 'Bolsones', 'Espiga',
+  'Camelina', 'Girasol', 'Fertilizante', 'Maní', 'Trigo', 'Varios'
+];
+
 const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess, viajeAEditar }) => {
   const {
     clientes, transportistas, ordenante, clienteId, setClienteId,
@@ -21,10 +26,24 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess, via
     adelantosConsumidos, setAdelantosConsumidos, saldo, setSaldo, ordenPago, setOrdenPago,
     facturaGavem, setFacturaGavem, impFactGavem, setImpFactGavem,
     nroFcTransportista, setNroFcTransportista, impFactTransportista, setImpFactTransportista,
+    dominioCamion, setDominioCamion, dominioAcoplado, setDominioAcoplado,
     error, isSubmitting, isLoading, handleSubmit
   } = useViajeModal({ isOpen, onClose, onSuccess, viajeAEditar });
 
   if (!isOpen) return null;
+
+  const inputBase = 'w-full px-3 py-2 border border-gray-300 rounded-lg outline-none transition-all';
+  const inputActive = 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500';
+  const inputDisabled = 'bg-gray-100 text-gray-500 cursor-not-allowed';
+  const fieldClass = (disabled: boolean) => `${inputBase} ${disabled ? inputDisabled : inputActive}`;
+
+  // Estado de observaciones para badge visual
+  const obsLabel = (observaciones || '').trim().toLowerCase();
+  const obsBadge = {
+    'pagado':         { color: 'bg-green-100 text-green-700 border-green-300', label: '✓ Pagado' },
+    'liquidado':      { color: 'bg-blue-100 text-blue-700 border-blue-300',   label: '📄 Liquidado' },
+    'preliquidacion': { color: 'bg-yellow-100 text-yellow-700 border-yellow-300', label: '⏳ Preliquidación' },
+  }[obsLabel] || { color: 'bg-gray-100 text-gray-500 border-gray-200', label: '— Sin estado' };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
@@ -32,12 +51,20 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess, via
 
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50 rounded-t-xl shrink-0">
-          <h3 className="text-xl font-bold text-gray-800 flex items-center">
-            <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm mr-3">
+          <div className="flex items-center gap-3">
+            <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-semibold">
               Ord #{ordenante}
             </span>
-            {viajeAEditar ? 'Editar Viaje' : 'Carga de Nuevo Viaje'}
-          </h3>
+            <h3 className="text-xl font-bold text-gray-800">
+              {viajeAEditar ? 'Editar Viaje' : 'Carga de Nuevo Viaje'}
+            </h3>
+            {/* Badge de estado */}
+            {viajeAEditar && (
+              <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${obsBadge.color}`}>
+                {obsBadge.label}
+              </span>
+            )}
+          </div>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors font-bold text-2xl leading-none"
@@ -66,23 +93,26 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess, via
 
                   {/* COLUMNA IZQUIERDA - OPERATIVA */}
                   <div className="space-y-6">
-                    {/* Sección 1: Actores */}
+
+                    {/* Sección 1: Actores y Fechas — OBLIGATORIA */}
                     <div className={`p-4 rounded-lg border ${viajeAEditar ? 'bg-gray-100 border-gray-200' : 'bg-gray-50 border-gray-100'}`}>
                       <div className="flex items-center justify-between mb-4 border-b pb-2">
-                        <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Actores y Fechas</h4>
+                        <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
+                          Actores y Fechas <span className="text-red-400">*</span>
+                        </h4>
                         {viajeAEditar && (
                           <span className="text-xs bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full font-medium">🔒 No editable</span>
                         )}
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Cliente *</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Cliente <span className="text-red-500">*</span></label>
                           <select
                             required
                             disabled={!!viajeAEditar}
                             value={clienteId}
                             onChange={(e) => setClienteId(e.target.value)}
-                            className={`w-full px-3 py-2 border border-gray-300 rounded-lg outline-none transition-all ${viajeAEditar ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}`}
+                            className={fieldClass(!!viajeAEditar)}
                           >
                             <option value="">Seleccione cliente</option>
                             {clientes.map(c => (
@@ -91,13 +121,13 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess, via
                           </select>
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Transportista *</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Transportista <span className="text-red-500">*</span></label>
                           <select
                             required
                             disabled={!!viajeAEditar}
                             value={transportistaId}
                             onChange={(e) => setTransportistaId(e.target.value)}
-                            className={`w-full px-3 py-2 border border-gray-300 rounded-lg outline-none transition-all ${viajeAEditar ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}`}
+                            className={fieldClass(!!viajeAEditar)}
                           >
                             <option value="">Seleccione transportista</option>
                             {transportistas.map(t => (
@@ -111,25 +141,25 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess, via
                             disabled={!!viajeAEditar}
                             value={propioTercero}
                             onChange={(e) => setPropioTercero(e.target.value)}
-                            className={`w-full px-3 py-2 border border-gray-300 rounded-lg outline-none transition-all ${viajeAEditar ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}`}
+                            className={fieldClass(!!viajeAEditar)}
                           >
                             <option value="Propio">Propio</option>
                             <option value="Tercero">Tercero</option>
                           </select>
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Fecha del Viaje *</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Fecha del Viaje <span className="text-red-500">*</span></label>
                           <input
                             type="date"
                             required
                             disabled={!!viajeAEditar}
                             value={fecha}
                             onChange={(e) => setFecha(e.target.value)}
-                            className={`w-full px-3 py-2 border border-gray-300 rounded-lg outline-none transition-all ${viajeAEditar ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}`}
+                            className={fieldClass(!!viajeAEditar)}
                           />
                         </div>
                         <div className="md:col-span-2">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Chofer *</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Chofer <span className="text-red-500">*</span></label>
                           <input
                             type="text"
                             required
@@ -137,89 +167,140 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess, via
                             value={chofer}
                             onChange={(e) => setChofer(e.target.value)}
                             placeholder="Nombre del chofer"
-                            className={`w-full px-3 py-2 border border-gray-300 rounded-lg outline-none transition-all ${viajeAEditar ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}`}
+                            className={fieldClass(!!viajeAEditar)}
+                          />
+                        </div>
+
+                        {/* Dominios (patentes) */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Dominio Camión <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            disabled={!!viajeAEditar}
+                            value={dominioCamion}
+                            onChange={(e) => setDominioCamion(e.target.value.toUpperCase())}
+                            placeholder="Ej: ABC123"
+                            maxLength={10}
+                            className={`${fieldClass(!!viajeAEditar)} uppercase tracking-widest font-mono`}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Dominio Acoplado <span className="text-gray-400 text-xs font-normal">(opcional)</span>
+                          </label>
+                          <input
+                            type="text"
+                            disabled={!!viajeAEditar}
+                            value={dominioAcoplado}
+                            onChange={(e) => setDominioAcoplado(e.target.value.toUpperCase())}
+                            placeholder="Ej: XY1234"
+                            maxLength={10}
+                            className={`${fieldClass(!!viajeAEditar)} uppercase tracking-widest font-mono`}
                           />
                         </div>
                       </div>
                     </div>
 
-                    {/* Sección 2: Carga y Ruta */}
+                    {/* Sección 2: Carga y Ruta — OBLIGATORIA */}
                     <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                      <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 border-b pb-2">Información de Carga y Ruta</h4>
+                      <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 border-b pb-2">
+                        Información de Carga y Ruta <span className="text-red-400">*</span>
+                      </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                        {/* Mercadería como select */}
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Mercadería *</label>
-                          <input
-                            type="text"
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Mercadería <span className="text-red-500">*</span></label>
+                          <select
                             required
                             value={mercaderia}
                             onChange={(e) => setMercaderia(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                          />
+                            className={`${inputBase} ${inputActive}`}
+                          >
+                            <option value="">Seleccione mercadería</option>
+                            {MERCADERIAS.map(m => (
+                              <option key={m} value={m}>{m}</option>
+                            ))}
+                          </select>
                         </div>
+
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Carta de Porte *</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Carta de Porte <span className="text-red-500">*</span></label>
                           <input
                             type="text"
                             required
                             value={cartaPorte}
                             onChange={(e) => setCartaPorte(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                            className={`${inputBase} ${inputActive}`}
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Lugar Desde *</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Lugar Desde <span className="text-red-500">*</span></label>
                           <input
                             type="text"
                             required
                             value={lugarDesde}
                             onChange={(e) => setLugarDesde(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                            className={`${inputBase} ${inputActive}`}
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Lugar Hasta *</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Lugar Hasta <span className="text-red-500">*</span></label>
                           <input
                             type="text"
                             required
                             value={lugarHasta}
                             onChange={(e) => setLugarHasta(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                            className={`${inputBase} ${inputActive}`}
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Kilómetros *</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Kilómetros <span className="text-red-500">*</span></label>
                           <input
                             type="number"
                             required
                             step="0.01"
+                            min="0.01"
                             value={kms}
                             onChange={(e) => setKms(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                            className={`${inputBase} ${inputActive}`}
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Kilos *</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Kilos <span className="text-red-500">*</span></label>
                           <input
                             type="number"
                             required
                             step="0.01"
+                            min="0.01"
                             value={kilos}
                             onChange={(e) => setKilos(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                            className={`${inputBase} ${inputActive}`}
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Condición *</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Condición <span className="text-red-500">*</span></label>
                           <select
                             required
                             value={condicion}
                             onChange={(e) => setCondicion(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                            className={`${inputBase} ${inputActive}`}
                           >
                             <option value="1">1</option>
                             <option value="2">2</option>
                           </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Provincia Origen</label>
+                          <input
+                            type="text"
+                            value={provOrigen}
+                            onChange={(e) => setProvOrigen(e.target.value)}
+                            className={`${inputBase} ${inputActive}`}
+                          />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Provincia Destino</label>
@@ -227,7 +308,7 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess, via
                             type="text"
                             value={provDestino}
                             onChange={(e) => setProvDestino(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                            className={`${inputBase} ${inputActive}`}
                           />
                         </div>
                       </div>
@@ -236,109 +317,120 @@ const ViajeModal: React.FC<ViajeModalProps> = ({ isOpen, onClose, onSuccess, via
 
                   {/* COLUMNA DERECHA - FINANZAS Y ADMIN */}
                   <div className="space-y-6">
+
                     {/* Sección 3: Finanzas */}
                     <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                      <h4 className="text-sm font-semibold text-blue-800 uppercase tracking-wider mb-4 border-b border-blue-200 pb-2">Sección Financiera (Auto-calculada)</h4>
+                      <h4 className="text-sm font-semibold text-blue-800 uppercase tracking-wider mb-4 border-b border-blue-200 pb-2">
+                        Sección Financiera (Auto-calculada)
+                      </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-blue-900 mb-1">Tarifa Aplicada</label>
-                          <input
-                            type="number" step="0.01" value={tarifaAplicada} onChange={(e) => setTarifaAplicada(e.target.value)}
-                            className="w-full px-3 py-2 border border-blue-200 rounded-lg bg-white"
-                          />
+                          <input type="number" step="0.01" value={tarifaAplicada} onChange={(e) => setTarifaAplicada(e.target.value)}
+                            className="w-full px-3 py-2 border border-blue-200 rounded-lg bg-white" />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-blue-900 mb-1">Importe</label>
-                          <input
-                            type="number" step="0.01" value={importe} onChange={(e) => setImporte(e.target.value)}
-                            className="w-full px-3 py-2 border border-blue-200 rounded-lg bg-white"
-                          />
+                          <input type="number" step="0.01" value={importe} onChange={(e) => setImporte(e.target.value)}
+                            className="w-full px-3 py-2 border border-blue-200 rounded-lg bg-white" />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-blue-900 mb-1">Comisión 8%</label>
-                          <input
-                            type="number" step="0.01" value={comision8} onChange={(e) => setComision8(e.target.value)}
-                            className="w-full px-3 py-2 border border-blue-200 rounded-lg bg-white"
-                          />
+                          <input type="number" step="0.01" value={comision8} onChange={(e) => setComision8(e.target.value)}
+                            className="w-full px-3 py-2 border border-blue-200 rounded-lg bg-white" />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-blue-900 mb-1">Neto</label>
-                          <input
-                            type="number" step="0.01" value={neto} onChange={(e) => setNeto(e.target.value)}
-                            className="w-full px-3 py-2 border border-blue-200 rounded-lg bg-white font-semibold text-blue-900"
-                          />
+                          <input type="number" step="0.01" value={neto} onChange={(e) => setNeto(e.target.value)}
+                            className="w-full px-3 py-2 border border-blue-200 rounded-lg bg-white font-semibold text-blue-900" />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-blue-900 mb-1">IVA 21%</label>
-                          <input
-                            type="number" step="0.01" value={iva21} onChange={(e) => setIva21(e.target.value)}
-                            className="w-full px-3 py-2 border border-blue-200 rounded-lg bg-white"
-                          />
+                          <input type="number" step="0.01" value={iva21} onChange={(e) => setIva21(e.target.value)}
+                            className="w-full px-3 py-2 border border-blue-200 rounded-lg bg-white" />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-blue-900 mb-1">Gastos Varios</label>
-                          <input
-                            type="number" step="0.01" value={varios} onChange={(e) => setVarios(e.target.value)}
-                            className="w-full px-3 py-2 border border-blue-200 rounded-lg bg-white"
-                          />
+                          <input type="number" step="0.01" value={varios} onChange={(e) => setVarios(e.target.value)}
+                            className="w-full px-3 py-2 border border-blue-200 rounded-lg bg-white" />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-blue-900 mb-1">Adelantos</label>
-                          <input
-                            type="number" step="0.01" value={adelantosConsumidos} onChange={(e) => setAdelantosConsumidos(e.target.value)}
-                            className="w-full px-3 py-2 border border-blue-200 rounded-lg bg-white"
-                          />
+                          <input type="number" step="0.01" value={adelantosConsumidos} onChange={(e) => setAdelantosConsumidos(e.target.value)}
+                            className="w-full px-3 py-2 border border-blue-200 rounded-lg bg-white" />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-blue-900 mb-1">Saldo a Pagar</label>
-                          <input
-                            type="number" step="0.01" value={saldo} onChange={(e) => setSaldo(e.target.value)}
-                            className="w-full px-3 py-2 border border-blue-200 rounded-lg bg-green-50 font-bold text-green-700"
-                          />
+                          <input type="number" step="0.01" value={saldo} onChange={(e) => setSaldo(e.target.value)}
+                            className="w-full px-3 py-2 border border-blue-200 rounded-lg bg-green-50 font-bold text-green-700" />
                         </div>
                       </div>
                     </div>
 
                     {/* Sección 4: Administrativa */}
                     <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                      <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 border-b pb-2">Facturación y Administración</h4>
+                      <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 border-b pb-2">
+                        Facturación y Administración
+                      </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Orden de Pago</label>
-                          <input
-                            type="text" value={ordenPago} onChange={(e) => setOrdenPago(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none transition-all"
-                          />
+                          <input type="text" value={ordenPago} onChange={(e) => setOrdenPago(e.target.value)}
+                            className={`${inputBase} ${inputActive}`} />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Factura GAVEM</label>
-                          <input
-                            type="text" value={facturaGavem} onChange={(e) => setFacturaGavem(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none transition-all"
-                          />
+                          <input type="text" value={facturaGavem} onChange={(e) => setFacturaGavem(e.target.value)}
+                            className={`${inputBase} ${inputActive}`} />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Nro Factura Transporte</label>
-                          <input
-                            type="text" value={nroFcTransportista} onChange={(e) => setNroFcTransportista(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none transition-all"
-                          />
+                          <input type="text" value={nroFcTransportista} onChange={(e) => setNroFcTransportista(e.target.value)}
+                            className={`${inputBase} ${inputActive}`} />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Imp. Factura Transp. ($)</label>
-                          <input
-                            type="number" step="0.01" value={impFactTransportista} onChange={(e) => setImpFactTransportista(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none transition-all"
-                          />
+                          <input type="number" step="0.01" value={impFactTransportista} onChange={(e) => setImpFactTransportista(e.target.value)}
+                            className={`${inputBase} ${inputActive}`} />
                         </div>
+
+                        {/* Estado / Observaciones con opciones */}
                         <div className="md:col-span-2">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Observaciones Administrativas</label>
-                          <textarea
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Estado (Observaciones)
+                            <span className="ml-2 text-xs text-gray-400 font-normal">
+                              — Se actualiza automáticamente según factura/pago
+                            </span>
+                          </label>
+                          <div className="flex gap-2 flex-wrap mb-2">
+                            {['', 'Preliquidacion', 'Liquidado', 'Pagado'].map(est => (
+                              <button
+                                key={est}
+                                type="button"
+                                onClick={() => setObservaciones(est)}
+                                className={`px-3 py-1 text-xs rounded-full border font-medium transition-colors ${
+                                  observaciones === est
+                                    ? est === '' ? 'bg-gray-200 text-gray-700 border-gray-400'
+                                      : est === 'Preliquidacion' ? 'bg-yellow-200 text-yellow-800 border-yellow-400'
+                                      : est === 'Liquidado' ? 'bg-blue-200 text-blue-800 border-blue-400'
+                                      : 'bg-green-200 text-green-800 border-green-400'
+                                    : 'bg-white text-gray-500 border-gray-200 hover:border-gray-400'
+                                }`}
+                              >
+                                {est === '' ? '— Sin estado' : est}
+                              </button>
+                            ))}
+                          </div>
+                          <input
+                            type="text"
                             value={observaciones}
                             onChange={(e) => setObservaciones(e.target.value)}
-                            rows={2}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none transition-all resize-none"
+                            placeholder="Estado del viaje (se calcula automáticamente)"
+                            className={`${inputBase} ${inputActive} text-sm`}
                           />
+                          <p className="text-xs text-gray-400 mt-1">
+                            💡 Al guardar con Orden de Pago → "Pagado" | Con Nro Factura Transporte → "Liquidado"
+                          </p>
                         </div>
                       </div>
                     </div>

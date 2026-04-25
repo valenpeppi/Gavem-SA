@@ -56,6 +56,8 @@ export const cargarViaje = async (
     chofer: string;
     carta_porte: string;
     mercaderia: string;
+    dominio_camion?: string;
+    dominio_acoplado?: string;
     lugar_desde: string;
     lugar_hasta: string;
     prov_origen?: string;
@@ -116,6 +118,17 @@ export const crearTarifa = async (tarifaData: {
   fecha_hasta: string;
 }) => {
   const response = await api.post('/tarifas/', tarifaData);
+  return response.data;
+};
+
+// --- ADELANTOS ---
+export const getAdelantos = async () => {
+  const response = await api.get('/adelantos/');
+  return response.data;
+};
+
+export const actualizarAdelanto = async (adelantoId: number, data: { viaje_id?: number | null }) => {
+  const response = await api.put(`/adelantos/${adelantoId}`, data);
   return response.data;
 };
 

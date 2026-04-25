@@ -84,6 +84,26 @@ const ViajesPage = () => {
       cell: (row: any) => <span className="font-bold text-green-600">${parseFloat(row.saldo).toLocaleString('es-AR')}</span>
     },
     {
+      header: 'Estado',
+      accessorKey: 'observaciones',
+      cell: (row: any) => {
+        const obs = (row.observaciones || '').trim().toLowerCase();
+        const badges: Record<string, string> = {
+          'pagado': 'bg-green-100 text-green-700',
+          'liquidado': 'bg-blue-100 text-blue-700',
+          'preliquidacion': 'bg-yellow-100 text-yellow-700',
+        };
+        const labels: Record<string, string> = {
+          'pagado': 'Pagado',
+          'liquidado': 'Liquidado',
+          'preliquidacion': 'Preliquidación',
+        };
+        return obs && badges[obs]
+          ? <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${badges[obs]}`}>{labels[obs]}</span>
+          : <span className="text-gray-300 text-xs">—</span>;
+      }
+    },
+    {
       header: 'Acciones',
       accessorKey: 'id',
       cell: (row: any) => (

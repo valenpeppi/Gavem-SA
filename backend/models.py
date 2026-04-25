@@ -55,6 +55,8 @@ class Viaje(Base):
     fecha = Column(DateTime, default=datetime.utcnow)
     carta_porte = Column(String(100), index=True, nullable=False)
     mercaderia = Column(String(100))
+    dominio_camion = Column(String(20))        # Patente del camión
+    dominio_acoplado = Column(String(20))      # Patente del acoplado (opcional)
     lugar_desde = Column(String(100))
     lugar_hasta = Column(String(100))
     prov_origen = Column(String(50))
@@ -99,6 +101,6 @@ class Adelanto(Base):
     fecha_emision = Column(DateTime, default=datetime.utcnow)
     observaciones = Column(Text, nullable=True)
     transportista_id = Column(Integer, ForeignKey("transportistas.id"))
-    viaje_id = Column(Integer, ForeignKey("viajes.id"), nullable=True)
+    viaje_id = Column(Integer, ForeignKey("viajes.id"), nullable=True, unique=True)  # Un adelanto -> un solo viaje
     transportista = relationship("Transportista", back_populates="adelantos")
     viaje = relationship("Viaje", back_populates="adelantos")

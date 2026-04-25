@@ -44,9 +44,35 @@ def create_viaje(db: Session, viaje: schemas.ViajeCreate, cliente_id: int, trans
         db_viaje.rentabilidad = db_viaje.comision_8
 
     db.add(db_viaje)
+
+    # Auto-calcular observaciones según estado
+    _recalcular_observaciones(db_viaje)
+
     db.commit()
     db.refresh(db_viaje)
     return db_viaje
+
+
+def _recalcular_observaciones(viaje: models.Viaje):
+    """Determina el estado (observaciones) del viaje automáticamente.
+    - Pagado: tiene orden_pago cargada
+    - Liquidado: tiene nro_fc_transportista (Nro Factura Transporte)
+    - Preliquidacion: fue marcado manualmente (no se sobreescribe)
+    - Vacío: ningún estado
+    Solo sobreescribe si el estado actual NO fue puesto manualmente como 'Preliquidacion'.
+    """
+    obs_actual = (viaje.observaciones or '').strip()
+    # Si ya está marcado como Preliquidacion manualmente, no lo tocamos
+    if obs_actual.lower() == 'preliquidacion':
+        return
+    if viaje.orden_pago and viaje.orden_pago.strip():
+        viaje.observaciones = 'Pagado'
+    elif viaje.nro_fc_transportista and viaje.nro_fc_transportista.strip():
+        viaje.observaciones = 'Liquidado'
+    else:
+        # Solo limpiar si era un estado automático previo
+        if obs_actual.lower() in ('pagado', 'liquidado', ''):
+            viaje.observaciones = None
 
 # Otros métodos CRUD simplificados
 def get_clientes(db: Session, skip: int = 0, limit: int = 100):
@@ -88,11 +114,13 @@ def create_tarifa(db: Session, tarifa: schemas.TarifaCreate):
 def create_adelanto(db: Session, adelanto: schemas.AdelantoCreate):
     db_obj = models.Adelanto(**adelanto.model_dump())
     db.add(db_obj)
+    # Solo actualiza el viaje si se asignó uno
     if adelanto.viaje_id:
         v = db.query(models.Viaje).filter(models.Viaje.id == adelanto.viaje_id).first()
         if v:
-            v.adelantos_consumidos += adelanto.monto_total
-            v.saldo -= adelanto.monto_total
+            v.adelantos_consumidos = (v.adelantos_consumidos or 0) + adelanto.monto_total
+            varios = v.varios or 0
+            v.saldo = (v.importe + v.iva_21) - varios - v.adelantos_consumidos
     db.commit(); db.refresh(db_obj)
     return db_obj
 
@@ -182,6 +210,9 @@ def update_viaje(db: Session, viaje_id: int, viaje_update: schemas.ViajeUpdate):
         
     if 'rentabilidad' not in update_data:
         db_obj.rentabilidad = db_obj.comision_8
+
+    # Auto-calcular observaciones según estado
+    _recalcular_observaciones(db_obj)
 
     db.commit(); db.refresh(db_obj)
     return db_obj

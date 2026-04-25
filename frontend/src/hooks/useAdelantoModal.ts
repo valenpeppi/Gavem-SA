@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getTransportistas, getTarifas, getViajes } from '../services/api';
 
 interface UseAdelantoModalProps {
   isOpen: boolean;
@@ -7,12 +8,19 @@ interface UseAdelantoModalProps {
 }
 
 export const useAdelantoModal = ({ isOpen, onClose, onSuccess }: UseAdelantoModalProps) => {
+  const [transportistas, setTransportistas] = useState<any[]>([]);
+  const [tarifas, setTarifas] = useState<any[]>([]);
   const [viajes, setViajes] = useState<any[]>([]);
-  const [viajeId, setViajeId] = useState('');
+
+  // Campos requeridos
+  const [transportistaId, setTransportistaId] = useState('');
   const [tipo, setTipo] = useState('Vale Combustible');
   const [montoTotal, setMontoTotal] = useState('');
+
+  // Campos opcionales
+  const [viajeId, setViajeId] = useState('');
   const [observaciones, setObservaciones] = useState('');
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,43 +29,73 @@ export const useAdelantoModal = ({ isOpen, onClose, onSuccess }: UseAdelantoModa
     if (isOpen) {
       const fetchData = async () => {
         setIsLoading(true);
+        setError(null);
         try {
-          const res = await fetch('http://localhost:8000/viajes/');
-          const data = await res.json();
-          setViajes(data.sort((a: any, b: any) => b.id - a.id));
+          const [resTransportistas, resTarifas, resViajes] = await Promise.all([
+            getTransportistas(),
+            getTarifas(),
+            getViajes(),
+          ]);
+          setTransportistas(resTransportistas);
+          setTarifas(resTarifas);
+          // Solo mostrar viajes del transportista seleccionado (se filtra en el render)
+          setViajes(resViajes.sort((a: any, b: any) => b.id - a.id));
         } catch (err) {
-          setError('Error al cargar los viajes.');
+          setError('Error al cargar los datos.');
         } finally {
           setIsLoading(false);
         }
       };
       fetchData();
     } else {
-      setViajeId('');
+      // Reset al cerrar
+      setTransportistaId('');
       setTipo('Vale Combustible');
       setMontoTotal('');
+      setViajeId('');
       setObservaciones('');
       setError(null);
     }
   }, [isOpen]);
+
+  // Viajes filtrados según el transportista seleccionado
+  const viajesFiltrados = transportistaId
+    ? viajes.filter((v: any) => String(v.transportista_id) === String(transportistaId))
+    : viajes;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
 
-    try {
-      const selectedViaje = viajes.find(v => v.id.toString() === viajeId);
-      if (!selectedViaje) {
-        throw new Error('Debe seleccionar un viaje válido');
-      }
+    if (!transportistaId) {
+      setError('Debe seleccionar un transportista.');
+      setIsSubmitting(false);
+      return;
+    }
+    if (!montoTotal || parseFloat(montoTotal) <= 0) {
+      setError('Debe ingresar un importe válido.');
+      setIsSubmitting(false);
+      return;
+    }
 
-      const payload = {
+    // Validar que el viaje seleccionado pertenezca al transportista
+    if (viajeId) {
+      const viajeSeleccionado = viajes.find((v: any) => String(v.id) === String(viajeId));
+      if (viajeSeleccionado && String(viajeSeleccionado.transportista_id) !== String(transportistaId)) {
+        setError('El viaje seleccionado no corresponde al transportista elegido.');
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
+    try {
+      const payload: any = {
         tipo,
         monto_total: parseFloat(montoTotal),
         observaciones: observaciones || null,
-        viaje_id: parseInt(viajeId),
-        transportista_id: selectedViaje.transportista_id
+        transportista_id: parseInt(transportistaId),
+        viaje_id: viajeId ? parseInt(viajeId) : null,
       };
 
       const res = await fetch('http://localhost:8000/adelantos/', {
@@ -67,6 +105,9 @@ export const useAdelantoModal = ({ isOpen, onClose, onSuccess }: UseAdelantoModa
       });
 
       if (!res.ok) {
+        const errData = await res.json().catch(() => null);
+        const detail = errData?.detail;
+        if (detail && typeof detail === 'string') throw new Error(detail);
         throw new Error('Error al registrar el adelanto');
       }
 
@@ -80,7 +121,11 @@ export const useAdelantoModal = ({ isOpen, onClose, onSuccess }: UseAdelantoModa
   };
 
   return {
+    transportistas,
+    tarifas,
     viajes,
+    viajesFiltrados,
+    transportistaId, setTransportistaId,
     viajeId, setViajeId,
     tipo, setTipo,
     montoTotal, setMontoTotal,

@@ -12,8 +12,22 @@ def cargar_viaje(db: Session, viaje: schemas.ViajeCreate, cliente_id: int, trans
         else (tarifa_db.precio_km_ton if tarifa_db else Decimal("0.00"))
     )
 
+    viaje_data = viaje.model_dump(exclude={'tarifa_aplicada'})
+
+    # PostgreSQL almacena el NOMBRE del enum (UNO/DOS), no el valor ('1'/'2')
+    condicion_raw = viaje_data.get('condicion')
+    if condicion_raw is not None:
+        if hasattr(condicion_raw, 'name'):
+            # Es un objeto enum de Python → usar su nombre
+            viaje_data['condicion'] = condicion_raw.name
+        elif str(condicion_raw) == '1':
+            viaje_data['condicion'] = 'UNO'
+        elif str(condicion_raw) == '2':
+            viaje_data['condicion'] = 'DOS'
+        # Si ya viene como 'UNO'/'DOS', se deja igual
+
     db_viaje = models.Viaje(
-        **viaje.model_dump(),
+        **viaje_data,
         cliente_id=cliente_id,
         transportista_id=transportista_id,
         tarifa_aplicada=precio,
@@ -56,6 +70,17 @@ def actualizar_viaje(db: Session, viaje_id: int, viaje_update: schemas.ViajeUpda
         raise HTTPException(status_code=404, detail="Viaje no encontrado")
 
     update_data = viaje_update.model_dump(exclude_unset=True)
+
+    # Corregir condicion si viene como enum o como '1'/'2'
+    if 'condicion' in update_data:
+        c = update_data['condicion']
+        if hasattr(c, 'name'):
+            update_data['condicion'] = c.name
+        elif str(c) == '1':
+            update_data['condicion'] = 'UNO'
+        elif str(c) == '2':
+            update_data['condicion'] = 'DOS'
+
     for key, value in update_data.items():
         setattr(db_obj, key, value)
 

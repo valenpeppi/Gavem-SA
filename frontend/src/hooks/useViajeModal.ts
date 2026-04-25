@@ -33,6 +33,8 @@ export const useViajeModal = ({ isOpen, onClose, onSuccess, viajeAEditar }: UseV
   const [comentario, setComentario] = useState('');
   const [observaciones, setObservaciones] = useState('');
   const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
+  const [dominioCamion, setDominioCamion] = useState('');
+  const [dominioAcoplado, setDominioAcoplado] = useState('');
 
   // Form fields - Financieros
   const [tarifaAplicada, setTarifaAplicada] = useState('');
@@ -94,6 +96,8 @@ export const useViajeModal = ({ isOpen, onClose, onSuccess, viajeAEditar }: UseV
         setComentario(viajeAEditar.comentario || '');
         setObservaciones(viajeAEditar.observaciones || '');
         setFecha(new Date(viajeAEditar.fecha).toISOString().split('T')[0]);
+        setDominioCamion(viajeAEditar.dominio_camion || '');
+        setDominioAcoplado(viajeAEditar.dominio_acoplado || '');
 
         setTarifaAplicada(String(viajeAEditar.tarifa_aplicada || ''));
         setImporte(String(viajeAEditar.importe || ''));
@@ -120,6 +124,7 @@ export const useViajeModal = ({ isOpen, onClose, onSuccess, viajeAEditar }: UseV
         setProvOrigen(''); setProvDestino(''); setKms(''); setKilos(''); setCubicaje('');
         setCondicion('1'); setVarios(''); setComentario(''); setObservaciones('');
         setFecha(new Date().toISOString().split('T')[0]);
+        setDominioCamion(''); setDominioAcoplado('');
 
         setTarifaAplicada(''); setImporte(''); setComision8(''); setNeto(''); setIva21('');
         setAdelantosConsumidos(''); setSaldo(''); setRentabilidad('');
@@ -190,6 +195,8 @@ export const useViajeModal = ({ isOpen, onClose, onSuccess, viajeAEditar }: UseV
       const payloadData = {
           ordenante, fecha: new Date(fecha).toISOString(), propio_tercero: propioTercero,
           chofer, carta_porte: cartaPorte, mercaderia,
+          dominio_camion: dominioCamion || undefined,
+          dominio_acoplado: dominioAcoplado || undefined,
           lugar_desde: lugarDesde, lugar_hasta: lugarHasta,
           prov_origen: provOrigen || undefined, prov_destino: provDestino || undefined,
           kms: parseFloat(kms) || 0, kilos: parseFloat(kilos) || 0,
@@ -250,6 +257,7 @@ export const useViajeModal = ({ isOpen, onClose, onSuccess, viajeAEditar }: UseV
     adelantosConsumidos, setAdelantosConsumidos, saldo, setSaldo, ordenPago, setOrdenPago,
     facturaGavem, setFacturaGavem, impFactGavem, setImpFactGavem,
     nroFcTransportista, setNroFcTransportista, impFactTransportista, setImpFactTransportista,
+    dominioCamion, setDominioCamion, dominioAcoplado, setDominioAcoplado,
     error, isSubmitting, isLoading, handleSubmit
   };
 };

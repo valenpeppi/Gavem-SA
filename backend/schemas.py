@@ -56,6 +56,8 @@ class ViajeCreate(BaseModel):
     chofer: str
     carta_porte: str
     mercaderia: str
+    dominio_camion: Optional[str] = None
+    dominio_acoplado: Optional[str] = None
     lugar_desde: str
     lugar_hasta: str
     prov_origen: Optional[str] = None
@@ -138,6 +140,8 @@ class ViajeUpdate(BaseModel):
     chofer: Optional[str] = None
     carta_porte: Optional[str] = None
     mercaderia: Optional[str] = None
+    dominio_camion: Optional[str] = None
+    dominio_acoplado: Optional[str] = None
     lugar_desde: Optional[str] = None
     lugar_hasta: Optional[str] = None
     prov_origen: Optional[str] = None

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Truck, Users, Map, DollarSign, Menu, Bell, CreditCard, LogOut } from 'lucide-react';
+import { Truck, Users, Map, DollarSign, Menu, Bell, CreditCard, LogOut, TrendingUp } from 'lucide-react';
+import DashboardPage from './pages/DashboardPage';
 import ClientesPage from './pages/ClientesPage';
 import TransportistasPage from './pages/TransportistasPage';
 import ViajesPage from './pages/ViajesPage';
@@ -8,6 +9,7 @@ import AdelantosPage from './pages/AdelantosPage';
 import LoginPage from './pages/LoginPage';
 
 const TAB_LABELS: Record<string, string> = {
+  dashboard: 'Panel de Control',
   viajes: 'Viajes',
   clientes: 'Clientes',
   transportistas: 'Transportistas',
@@ -16,7 +18,7 @@ const TAB_LABELS: Record<string, string> = {
 };
 
 function App() {
-  const [activeTab, setActiveTab] = useState('viajes');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [isAuthenticated, setIsAuthenticated] = useState(
     () => sessionStorage.getItem('gavem_auth') === 'true'
   );
@@ -40,6 +42,20 @@ function App() {
         </div>
 
         <nav className="flex-1 py-4">
+          {/* Sección General */}
+          <p className="px-6 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">General</p>
+          <ul className="space-y-1 mb-4">
+            <li>
+              <button
+                onClick={() => setActiveTab('dashboard')}
+                className={`w-full flex items-center px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors ${activeTab === 'dashboard' ? 'bg-blue-600 text-white' : ''}`}
+              >
+                <TrendingUp className="w-5 h-5 mr-3" />
+                Panel de Control
+              </button>
+            </li>
+          </ul>
+
           {/* Sección Operaciones */}
           <p className="px-6 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Operaciones</p>
           <ul className="space-y-1 mb-4">
@@ -133,6 +149,7 @@ function App() {
 
         {/* Dynamic Content Area */}
         <div className="flex-1 overflow-auto p-8 bg-gray-50">
+          {activeTab === 'dashboard' && <DashboardPage />}
           {activeTab === 'clientes' && <ClientesPage />}
           {activeTab === 'transportistas' && <TransportistasPage />}
           {activeTab === 'viajes' && <ViajesPage />}
