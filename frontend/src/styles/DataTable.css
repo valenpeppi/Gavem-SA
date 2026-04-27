@@ -1,0 +1,47 @@
+/* =============================================
+   DataTable.css — Tabla reutilizable
+   ============================================= */
+
+.datatable-loading {
+  @apply w-full h-64 flex items-center justify-center;
+}
+
+.datatable-spinner {
+  @apply animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600;
+}
+
+.datatable-empty {
+  @apply w-full h-64 flex flex-col items-center justify-center bg-white rounded-lg border border-gray-200;
+}
+
+.datatable-empty-text {
+  @apply text-gray-500 font-medium;
+}
+
+.datatable-wrapper {
+  @apply bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden;
+}
+
+.datatable-scroll {
+  @apply overflow-x-auto;
+}
+
+.datatable-table {
+  @apply w-full text-sm text-left text-gray-500;
+}
+
+.datatable-thead {
+  @apply text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-200;
+}
+
+.datatable-th {
+  @apply px-6 py-4 font-semibold;
+}
+
+.datatable-row {
+  @apply bg-white border-b hover:bg-gray-50 transition-colors;
+}
+
+.datatable-td {
+  @apply px-6 py-4;
+}

@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+/* Estilos compartidos */
+@import "./shared.css";
+
+/* Layout principal */
+@import "./App.css";
+
+/* Componentes */
+@import "./DataTable.css";
+
+/* Páginas */
+@import "./LoginPage.css";
+
 @layer base {
   body {
     @apply bg-gray-50 text-gray-900;

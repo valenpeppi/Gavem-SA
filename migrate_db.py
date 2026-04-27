@@ -18,18 +18,6 @@ def migrate():
              "ALTER TABLE viajes ADD COLUMN IF NOT EXISTS dominio_camion VARCHAR(20)"),
             ("dominio_acoplado en viajes",
              "ALTER TABLE viajes ADD COLUMN IF NOT EXISTS dominio_acoplado VARCHAR(20)"),
-            ("unique constraint en adelantos.viaje_id",
-             """
-             DO $$
-             BEGIN
-                 IF NOT EXISTS (
-                     SELECT 1 FROM pg_constraint 
-                     WHERE conname = 'adelantos_viaje_id_key'
-                 ) THEN
-                     ALTER TABLE adelantos ADD CONSTRAINT adelantos_viaje_id_key UNIQUE (viaje_id);
-                 END IF;
-             END $$;
-             """),
         ]
 
         for desc, sql in migrations:

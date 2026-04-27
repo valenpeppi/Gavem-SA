@@ -127,6 +127,17 @@ export const getAdelantos = async () => {
   return response.data;
 };
 
+export const crearAdelanto = async (adelantoData: {
+  tipo: string;
+  monto_total: number;
+  observaciones?: string | null;
+  transportista_id: number;
+  viaje_id?: number | null;
+}) => {
+  const response = await api.post('/adelantos/', adelantoData);
+  return response.data;
+};
+
 export const actualizarAdelanto = async (adelantoId: number, data: { viaje_id?: number | null }) => {
   const response = await api.put(`/adelantos/${adelantoId}`, data);
   return response.data;

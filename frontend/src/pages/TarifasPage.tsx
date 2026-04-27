@@ -32,21 +32,21 @@ const TarifasPage = () => {
   ];
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex justify-between items-center mb-6 shrink-0">
+    <div className="page-container">
+      <div className="page-header">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">Tarifas de Clientes</h2>
-          <p className="text-gray-500 text-sm mt-1">Gestión de precios vigentes por trayecto para cada cliente.</p>
+          <h2 className="page-title">Tarifas de Clientes</h2>
+          <p className="page-subtitle">Gestión de precios vigentes por trayecto para cada cliente.</p>
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm whitespace-nowrap"
+          className="btn-add"
         >
           + Nueva Tarifa
         </button>
       </div>
 
-      <div className="flex-1 overflow-hidden">
+      <div className="page-content">
         <DataTable data={tarifas} columns={columns} isLoading={loading} />
       </div>
 

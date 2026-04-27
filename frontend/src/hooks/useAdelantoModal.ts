@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getTransportistas, getTarifas, getViajes } from '../services/api';
+import { getTransportistas, getViajes, crearAdelanto } from '../services/api';
 
 interface UseAdelantoModalProps {
   isOpen: boolean;
@@ -9,7 +9,6 @@ interface UseAdelantoModalProps {
 
 export const useAdelantoModal = ({ isOpen, onClose, onSuccess }: UseAdelantoModalProps) => {
   const [transportistas, setTransportistas] = useState<any[]>([]);
-  const [tarifas, setTarifas] = useState<any[]>([]);
   const [viajes, setViajes] = useState<any[]>([]);
 
   // Campos requeridos
@@ -31,17 +30,20 @@ export const useAdelantoModal = ({ isOpen, onClose, onSuccess }: UseAdelantoModa
         setIsLoading(true);
         setError(null);
         try {
-          const [resTransportistas, resTarifas, resViajes] = await Promise.all([
+          const [resTransportistas, resViajes] = await Promise.allSettled([
             getTransportistas(),
-            getTarifas(),
             getViajes(),
           ]);
-          setTransportistas(resTransportistas);
-          setTarifas(resTarifas);
-          // Solo mostrar viajes del transportista seleccionado (se filtra en el render)
-          setViajes(resViajes.sort((a: any, b: any) => b.id - a.id));
+
+          if (resTransportistas.status === 'fulfilled') setTransportistas(resTransportistas.value);
+          else console.error('Error cargando transportistas:', resTransportistas.reason);
+
+          if (resViajes.status === 'fulfilled')
+            setViajes(resViajes.value.sort((a: any, b: any) => b.id - a.id));
+          else console.error('Error cargando viajes:', resViajes.reason);
+
         } catch (err) {
-          setError('Error al cargar los datos.');
+          setError('Error al conectar con el servidor.');
         } finally {
           setIsLoading(false);
         }
@@ -90,26 +92,13 @@ export const useAdelantoModal = ({ isOpen, onClose, onSuccess }: UseAdelantoModa
     }
 
     try {
-      const payload: any = {
+      await crearAdelanto({
         tipo,
         monto_total: parseFloat(montoTotal),
         observaciones: observaciones || null,
         transportista_id: parseInt(transportistaId),
         viaje_id: viajeId ? parseInt(viajeId) : null,
-      };
-
-      const res = await fetch('http://localhost:8000/adelantos/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
       });
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => null);
-        const detail = errData?.detail;
-        if (detail && typeof detail === 'string') throw new Error(detail);
-        throw new Error('Error al registrar el adelanto');
-      }
 
       onSuccess();
       onClose();
@@ -122,7 +111,6 @@ export const useAdelantoModal = ({ isOpen, onClose, onSuccess }: UseAdelantoModa
 
   return {
     transportistas,
-    tarifas,
     viajes,
     viajesFiltrados,
     transportistaId, setTransportistaId,

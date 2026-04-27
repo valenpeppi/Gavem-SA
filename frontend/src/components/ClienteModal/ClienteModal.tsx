@@ -18,31 +18,31 @@ const ClienteModal: React.FC<ClienteModalProps> = ({ isOpen, onClose, onSuccess 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+    <div className="modal-overlay">
+      <div className="modal-card modal-card--sm">
 
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
-          <h3 className="text-lg font-bold text-gray-800">Nuevo Cliente</h3>
+        <div className="modal-header">
+          <h3 className="modal-title">Nuevo Cliente</h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors font-bold text-xl"
+            className="modal-close-btn"
           >
             &times;
           </button>
         </div>
 
         {/* Body */}
-        <div className="p-6">
+        <div className="modal-body">
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm rounded">
+            <div className="modal-error--inline">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="modal-form">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="modal-label">
                 Nombre o Razón Social *
               </label>
               <input
@@ -51,12 +51,12 @@ const ClienteModal: React.FC<ClienteModalProps> = ({ isOpen, onClose, onSuccess 
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
                 placeholder="Ej. Agropecuaria El Sol"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                className="modal-input"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="modal-label">
                 CUIT *
               </label>
               <input
@@ -65,16 +65,16 @@ const ClienteModal: React.FC<ClienteModalProps> = ({ isOpen, onClose, onSuccess 
                 value={cuit}
                 onChange={(e) => setCuit(e.target.value)}
                 placeholder="Ej. 30-12345678-9"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                className="modal-input"
               />
             </div>
 
             {/* Footer */}
-            <div className="pt-4 flex justify-end space-x-3">
+            <div className="modal-footer--inline">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="btn-cancel"
                 disabled={isSubmitting}
               >
                 Cancelar
@@ -82,7 +82,7 @@ const ClienteModal: React.FC<ClienteModalProps> = ({ isOpen, onClose, onSuccess 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center"
+                className="btn-primary"
               >
                 {isSubmitting ? 'Guardando...' : 'Guardar Cliente'}
               </button>

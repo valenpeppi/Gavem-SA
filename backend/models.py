@@ -101,6 +101,6 @@ class Adelanto(Base):
     fecha_emision = Column(DateTime, default=datetime.utcnow)
     observaciones = Column(Text, nullable=True)
     transportista_id = Column(Integer, ForeignKey("transportistas.id"))
-    viaje_id = Column(Integer, ForeignKey("viajes.id"), nullable=True, unique=True)  # Un adelanto -> un solo viaje
+    viaje_id = Column(Integer, ForeignKey("viajes.id"), nullable=True)  # Un adelanto -> un solo viaje (opcional)
     transportista = relationship("Transportista", back_populates="adelantos")
     viaje = relationship("Viaje", back_populates="adelantos")

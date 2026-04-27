@@ -15,28 +15,28 @@ interface DataTableProps {
 const DataTable: React.FC<DataTableProps> = ({ data, columns, isLoading }) => {
   if (isLoading) {
     return (
-      <div className="w-full h-64 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="datatable-loading">
+        <div className="datatable-spinner"></div>
       </div>
     );
   }
 
   if (!data || data.length === 0) {
     return (
-      <div className="w-full h-64 flex flex-col items-center justify-center bg-white rounded-lg border border-gray-200">
-        <p className="text-gray-500 font-medium">No hay registros para mostrar</p>
+      <div className="datatable-empty">
+        <p className="datatable-empty-text">No hay registros para mostrar</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm text-left text-gray-500">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-200">
+    <div className="datatable-wrapper">
+      <div className="datatable-scroll">
+        <table className="datatable-table">
+          <thead className="datatable-thead">
             <tr>
               {columns.map((col, idx) => (
-                <th key={idx} scope="col" className="px-6 py-4 font-semibold">
+                <th key={idx} scope="col" className="datatable-th">
                   {col.header}
                 </th>
               ))}
@@ -46,10 +46,10 @@ const DataTable: React.FC<DataTableProps> = ({ data, columns, isLoading }) => {
             {data.map((row, rowIdx) => (
               <tr 
                 key={row.id || rowIdx} 
-                className="bg-white border-b hover:bg-gray-50 transition-colors"
+                className="datatable-row"
               >
                 {columns.map((col, colIdx) => (
-                  <td key={colIdx} className="px-6 py-4">
+                  <td key={colIdx} className="datatable-td">
                     {col.cell ? col.cell(row) : row[col.accessorKey]}
                   </td>
                 ))}

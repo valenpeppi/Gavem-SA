@@ -1,0 +1,115 @@
+/* =============================================
+   LoginPage.css — Pantalla de login
+   ============================================= */
+
+.login-bg {
+  @apply min-h-screen bg-slate-900 flex items-center justify-center p-4;
+}
+
+.login-decorative {
+  @apply absolute inset-0 overflow-hidden pointer-events-none;
+}
+
+.login-decorative-blob {
+  @apply absolute w-96 h-96 rounded-full blur-3xl;
+}
+
+.login-decorative-blob--top {
+  @apply -top-40 -right-40 bg-blue-600/10;
+}
+
+.login-decorative-blob--bottom {
+  @apply -bottom-40 -left-40 bg-blue-500/10;
+}
+
+.login-wrapper {
+  @apply relative w-full max-w-md;
+}
+
+.login-card {
+  @apply bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 overflow-hidden;
+}
+
+.login-header {
+  @apply bg-slate-950 px-8 py-8 text-center border-b border-slate-700;
+}
+
+.login-icon-wrapper {
+  @apply flex items-center justify-center mb-4;
+}
+
+.login-icon-box {
+  @apply w-14 h-14 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg;
+}
+
+.login-icon {
+  @apply w-8 h-8 text-white;
+}
+
+.login-title {
+  @apply text-2xl font-bold text-white tracking-wide;
+}
+
+.login-subtitle {
+  @apply text-slate-400 text-sm mt-1;
+}
+
+.login-form-area {
+  @apply px-8 py-8;
+}
+
+.login-form-header {
+  @apply flex items-center gap-2 mb-6;
+}
+
+.login-form-header-icon {
+  @apply w-4 h-4 text-slate-400;
+}
+
+.login-form-header-text {
+  @apply text-slate-300 text-sm font-medium uppercase tracking-wider;
+}
+
+.login-error {
+  @apply mb-4 p-3 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg;
+}
+
+.login-form {
+  @apply space-y-5;
+}
+
+.login-label {
+  @apply block text-sm font-medium text-slate-400 mb-2;
+}
+
+.login-input-wrapper {
+  @apply relative;
+}
+
+.login-input {
+  @apply w-full px-4 py-3 pr-12 bg-slate-700 border border-slate-600 text-white placeholder-slate-500 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all;
+}
+
+.login-toggle-pw {
+  @apply absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors;
+}
+
+.login-toggle-pw-icon {
+  @apply w-5 h-5;
+}
+
+.login-submit {
+  @apply w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg;
+}
+
+.login-spinner {
+  @apply w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin;
+}
+
+.login-footer {
+  @apply px-8 pb-6 text-center;
+}
+
+.login-footer-text {
+  @apply text-slate-600 text-xs;
+}

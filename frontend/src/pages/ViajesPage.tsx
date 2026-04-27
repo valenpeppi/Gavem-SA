@@ -142,21 +142,21 @@ const ViajesPage = () => {
   ];
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex justify-between items-center mb-6 shrink-0">
+    <div className="page-container">
+      <div className="page-header">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">Listado de Viajes</h2>
-          <p className="text-gray-500 text-sm mt-1">Gestión operativa y financiera de todos los viajes cargados.</p>
+          <h2 className="page-title">Listado de Viajes</h2>
+          <p className="page-subtitle">Gestión operativa y financiera de todos los viajes cargados.</p>
         </div>
         <button
           onClick={() => { setViajeAEditar(null); setIsModalOpen(true); }}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm whitespace-nowrap"
+          className="btn-add"
         >
           + Nuevo Viaje
         </button>
       </div>
 
-      <div className="flex-1 overflow-hidden">
+      <div className="page-content">
         <DataTable data={viajes} columns={columns} isLoading={loading} />
       </div>
 

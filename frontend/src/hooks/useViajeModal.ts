@@ -57,88 +57,114 @@ export const useViajeModal = ({ isOpen, onClose, onSuccess, viajeAEditar }: UseV
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Efecto principal: carga datos de referencia y resetea/rellena el formulario
   useEffect(() => {
-    if (isOpen) {
-      cargarDatosIniciales();
+    if (!isOpen) return;
+    cargarDatosIniciales();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
+
+  // Efecto secundario: cuando cambia viajeAEditar mientras el modal está abierto
+  useEffect(() => {
+    if (!isOpen) return;
+    if (viajeAEditar) {
+      poblarFormulario(viajeAEditar);
     }
-  }, [isOpen, viajeAEditar]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viajeAEditar]);
 
   const cargarDatosIniciales = async () => {
     setIsLoading(true);
+    setError(null);
+
     try {
-      const [resClientes, resTransportistas, resViajes, resTarifas] = await Promise.all([
+      // Cargamos clientes, transportistas y tarifas de forma independiente
+      // para que un fallo en uno no bloquee los demás
+      const [resClientes, resTransportistas, resTarifas] = await Promise.allSettled([
         getClientes(),
         getTransportistas(),
-        getViajes(),
-        getTarifas()
+        getTarifas(),
       ]);
-      setClientes(resClientes);
-      setTransportistas(resTransportistas);
-      setTarifas(resTarifas);
+
+      if (resClientes.status === 'fulfilled') setClientes(resClientes.value);
+      else console.error('Error cargando clientes:', resClientes.reason);
+
+      if (resTransportistas.status === 'fulfilled') setTransportistas(resTransportistas.value);
+      else console.error('Error cargando transportistas:', resTransportistas.reason);
+
+      if (resTarifas.status === 'fulfilled') setTarifas(resTarifas.value);
+      else console.error('Error cargando tarifas:', resTarifas.reason);
 
       if (viajeAEditar) {
-        setOrdenante(viajeAEditar.ordenante);
-        setClienteId(String(viajeAEditar.cliente_id));
-        setTransportistaId(String(viajeAEditar.transportista_id));
-        setPropioTercero(viajeAEditar.propio_tercero || 'Tercero');
-        setChofer(viajeAEditar.chofer || '');
-        setCartaPorte(viajeAEditar.carta_porte || '');
-        setMercaderia(viajeAEditar.mercaderia || '');
-        setLugarDesde(viajeAEditar.lugar_desde || '');
-        setLugarHasta(viajeAEditar.lugar_hasta || '');
-        setProvOrigen(viajeAEditar.prov_origen || '');
-        setProvDestino(viajeAEditar.prov_destino || '');
-        setKms(String(viajeAEditar.kms || ''));
-        setKilos(String(viajeAEditar.kilos || ''));
-        setCubicaje(String(viajeAEditar.cubicaje || ''));
-        setCondicion(viajeAEditar.condicion === 'UNO' ? '1' : (viajeAEditar.condicion === 'DOS' ? '2' : String(viajeAEditar.condicion)));
-        setVarios(String(viajeAEditar.varios || ''));
-        setComentario(viajeAEditar.comentario || '');
-        setObservaciones(viajeAEditar.observaciones || '');
-        setFecha(new Date(viajeAEditar.fecha).toISOString().split('T')[0]);
-        setDominioCamion(viajeAEditar.dominio_camion || '');
-        setDominioAcoplado(viajeAEditar.dominio_acoplado || '');
-
-        setTarifaAplicada(String(viajeAEditar.tarifa_aplicada || ''));
-        setImporte(String(viajeAEditar.importe || ''));
-        setComision8(String(viajeAEditar.comision_8 || ''));
-        setNeto(String(viajeAEditar.neto || ''));
-        setIva21(String(viajeAEditar.iva_21 || ''));
-        setAdelantosConsumidos(String(viajeAEditar.adelantos_consumidos || ''));
-        setSaldo(String(viajeAEditar.saldo || ''));
-        setRentabilidad(String(viajeAEditar.rentabilidad || ''));
-
-        setOrdenPago(viajeAEditar.orden_pago || '');
-        setFacturaGavem(viajeAEditar.factura_gavem || '');
-        setImpFactGavem(String(viajeAEditar.imp_fact_gavem || ''));
-        setNroFcTransportista(viajeAEditar.nro_fc_transportista || '');
-        setImpFactTransportista(String(viajeAEditar.imp_fact_transportista || ''));
+        poblarFormulario(viajeAEditar);
       } else {
-        // Auto-calculate ordenante
-        const nextOrdenante = resViajes.length > 0 ? Math.max(...resViajes.map((v: any) => parseInt(v.ordenante) || 0)) + 1 : 1;
-        setOrdenante(nextOrdenante.toString());
-
-        // Reset form
-        setClienteId(''); setTransportistaId(''); setPropioTercero('Tercero'); setChofer('');
-        setCartaPorte(''); setMercaderia(''); setLugarDesde(''); setLugarHasta('');
-        setProvOrigen(''); setProvDestino(''); setKms(''); setKilos(''); setCubicaje('');
-        setCondicion('1'); setVarios(''); setComentario(''); setObservaciones('');
-        setFecha(new Date().toISOString().split('T')[0]);
-        setDominioCamion(''); setDominioAcoplado('');
-
-        setTarifaAplicada(''); setImporte(''); setComision8(''); setNeto(''); setIva21('');
-        setAdelantosConsumidos(''); setSaldo(''); setRentabilidad('');
-
-        setOrdenPago(''); setFacturaGavem(''); setImpFactGavem(''); setNroFcTransportista(''); setImpFactTransportista('');
+        // Calcular el próximo ordenante
+        try {
+          const resViajes = await getViajes();
+          const nextOrdenante = resViajes.length > 0
+            ? Math.max(...resViajes.map((v: any) => parseInt(v.ordenante) || 0)) + 1
+            : 1;
+          setOrdenante(nextOrdenante.toString());
+        } catch {
+          setOrdenante('1');
+        }
+        resetFormulario();
       }
-
-      setError(null);
     } catch (err) {
-      console.error("Error cargando datos:", err);
-      setError("Error al cargar los datos necesarios para el formulario.");
+      console.error('Error general cargando datos:', err);
+      setError('Error al conectar con el servidor. Verifique que el backend esté corriendo.');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const poblarFormulario = (viaje: any) => {
+    setOrdenante(viaje.ordenante);
+    setClienteId(String(viaje.cliente_id));
+    setTransportistaId(String(viaje.transportista_id));
+    setPropioTercero(viaje.propio_tercero || 'Tercero');
+    setChofer(viaje.chofer || '');
+    setCartaPorte(viaje.carta_porte || '');
+    setMercaderia(viaje.mercaderia || '');
+    setLugarDesde(viaje.lugar_desde || '');
+    setLugarHasta(viaje.lugar_hasta || '');
+    setProvOrigen(viaje.prov_origen || '');
+    setProvDestino(viaje.prov_destino || '');
+    setKms(String(viaje.kms || ''));
+    setKilos(String(viaje.kilos || ''));
+    setCubicaje(String(viaje.cubicaje || ''));
+    setCondicion(viaje.condicion === 'UNO' ? '1' : (viaje.condicion === 'DOS' ? '2' : String(viaje.condicion)));
+    setVarios(String(viaje.varios || ''));
+    setComentario(viaje.comentario || '');
+    setObservaciones(viaje.observaciones || '');
+    setFecha(new Date(viaje.fecha).toISOString().split('T')[0]);
+    setDominioCamion(viaje.dominio_camion || '');
+    setDominioAcoplado(viaje.dominio_acoplado || '');
+    setTarifaAplicada(String(viaje.tarifa_aplicada || ''));
+    setImporte(String(viaje.importe || ''));
+    setComision8(String(viaje.comision_8 || ''));
+    setNeto(String(viaje.neto || ''));
+    setIva21(String(viaje.iva_21 || ''));
+    setAdelantosConsumidos(String(viaje.adelantos_consumidos || ''));
+    setSaldo(String(viaje.saldo || ''));
+    setRentabilidad(String(viaje.rentabilidad || ''));
+    setOrdenPago(viaje.orden_pago || '');
+    setFacturaGavem(viaje.factura_gavem || '');
+    setImpFactGavem(String(viaje.imp_fact_gavem || ''));
+    setNroFcTransportista(viaje.nro_fc_transportista || '');
+    setImpFactTransportista(String(viaje.imp_fact_transportista || ''));
+  };
+
+  const resetFormulario = () => {
+    setClienteId(''); setTransportistaId(''); setPropioTercero('Tercero'); setChofer('');
+    setCartaPorte(''); setMercaderia(''); setLugarDesde(''); setLugarHasta('');
+    setProvOrigen(''); setProvDestino(''); setKms(''); setKilos(''); setCubicaje('');
+    setCondicion('1'); setVarios(''); setComentario(''); setObservaciones('');
+    setFecha(new Date().toISOString().split('T')[0]);
+    setDominioCamion(''); setDominioAcoplado('');
+    setTarifaAplicada(''); setImporte(''); setComision8(''); setNeto(''); setIva21('');
+    setAdelantosConsumidos(''); setSaldo(''); setRentabilidad('');
+    setOrdenPago(''); setFacturaGavem(''); setImpFactGavem(''); setNroFcTransportista(''); setImpFactTransportista('');
   };
 
   useEffect(() => {

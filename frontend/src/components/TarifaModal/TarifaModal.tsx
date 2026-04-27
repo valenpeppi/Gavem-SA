@@ -21,40 +21,40 @@ const TarifaModal: React.FC<TarifaModalProps> = ({ isOpen, onClose, onSuccess })
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden">
+    <div className="modal-overlay">
+      <div className="modal-card modal-card--md">
 
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
-          <h3 className="text-lg font-bold text-gray-800">Nueva Tarifa de Cliente</h3>
+        <div className="modal-header">
+          <h3 className="modal-title">Nueva Tarifa de Cliente</h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors font-bold text-xl"
+            className="modal-close-btn"
           >
             &times;
           </button>
         </div>
 
         {/* Body */}
-        <div className="p-6">
+        <div className="modal-body">
           {isLoading ? (
-            <div className="text-center py-4 text-gray-500">Cargando clientes...</div>
+            <div className="modal-loading">Cargando clientes...</div>
           ) : (
             <>
               {error && (
-                <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm rounded">
+                <div className="modal-error--inline">
                   {error}
                 </div>
               )}
 
-              <form id="tarifa-form" onSubmit={handleSubmit} className="space-y-4">
+              <form id="tarifa-form" onSubmit={handleSubmit} className="modal-form">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Cliente *</label>
+                  <label className="modal-label">Cliente *</label>
                   <select
                     required
                     value={clienteId}
                     onChange={(e) => setClienteId(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    className="modal-input"
                   >
                     <option value="">Seleccione un cliente</option>
                     {clientes.map(c => (
@@ -64,7 +64,7 @@ const TarifaModal: React.FC<TarifaModalProps> = ({ isOpen, onClose, onSuccess })
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Precio por KM-TON ($) *</label>
+                  <label className="modal-label">Precio por KM-TON ($) *</label>
                   <input
                     type="number"
                     required
@@ -72,29 +72,29 @@ const TarifaModal: React.FC<TarifaModalProps> = ({ isOpen, onClose, onSuccess })
                     value={precioKmTon}
                     onChange={(e) => setPrecioKmTon(e.target.value)}
                     placeholder="Ej. 1500.50"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    className="modal-input"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="modal-grid-2">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Vigencia Desde *</label>
+                    <label className="modal-label">Vigencia Desde *</label>
                     <input
                       type="date"
                       required
                       value={fechaDesde}
                       onChange={(e) => setFechaDesde(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                      className="modal-input"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Vigencia Hasta *</label>
+                    <label className="modal-label">Vigencia Hasta *</label>
                     <input
                       type="date"
                       required
                       value={fechaHasta}
                       onChange={(e) => setFechaHasta(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                      className="modal-input"
                     />
                   </div>
                 </div>
@@ -104,11 +104,11 @@ const TarifaModal: React.FC<TarifaModalProps> = ({ isOpen, onClose, onSuccess })
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end space-x-3">
+        <div className="modal-footer">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="btn-cancel"
             disabled={isSubmitting || isLoading}
           >
             Cancelar
@@ -117,7 +117,7 @@ const TarifaModal: React.FC<TarifaModalProps> = ({ isOpen, onClose, onSuccess })
             type="submit"
             form="tarifa-form"
             disabled={isSubmitting || isLoading}
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+            className="btn-primary"
           >
             {isSubmitting ? 'Guardando...' : 'Guardar Tarifa'}
           </button>
