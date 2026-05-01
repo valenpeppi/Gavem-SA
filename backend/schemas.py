@@ -176,3 +176,18 @@ class AdelantoUpdate(BaseModel):
     observaciones: Optional[str] = None
     transportista_id: Optional[int] = None
     viaje_id: Optional[int] = None
+
+class HistorialCambioBase(BaseModel):
+    entidad: str
+    entidad_id: int
+    accion: str
+    detalles: Optional[str] = None
+    usuario: Optional[str] = "Usuario del Sistema"
+
+class HistorialCambioCreate(HistorialCambioBase):
+    pass
+
+class HistorialCambio(HistorialCambioBase):
+    id: int
+    fecha: datetime
+    model_config = ConfigDict(from_attributes=True)

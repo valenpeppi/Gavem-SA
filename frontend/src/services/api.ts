@@ -143,4 +143,10 @@ export const actualizarAdelanto = async (adelantoId: number, data: { viaje_id?: 
   return response.data;
 };
 
+// --- HISTORIAL ---
+export const getHistorial = async (params?: { entidad?: string, entidad_id?: number }) => {
+  const response = await api.get('/historial/', { params });
+  return response.data;
+};
+
 export default api;

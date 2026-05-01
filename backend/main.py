@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from . import models, database
-from .routers import clientes, transportistas, tarifas, viajes, adelantos
+from .routers import clientes, transportistas, tarifas, viajes, adelantos, historial
 
 models.Base.metadata.create_all(bind=database.engine)
 
@@ -20,3 +20,4 @@ app.include_router(transportistas.router)
 app.include_router(tarifas.router)
 app.include_router(viajes.router)
 app.include_router(adelantos.router)
+app.include_router(historial.router)

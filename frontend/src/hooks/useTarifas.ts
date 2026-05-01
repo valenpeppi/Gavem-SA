@@ -3,7 +3,7 @@ import { getTarifas, getClientes } from '../services/api';
 
 export const useTarifas = () => {
   const [tarifas, setTarifas] = useState<any[]>([]);
-  const [clientesMap, setClientesMap] = useState<Record<number, string>>({});
+  const [clientesMap, setClientesMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
   const fetchDatos = useCallback(async () => {

@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useViajes } from '../hooks/useViajes';
 import { getClientes, getTransportistas } from '../services/api';
 import DataTable from '../components/DataTable/DataTable';
 import ViajeModal from '../components/ViajeModal/ViajeModal';
 import ViajeSummaryModal from '../components/ViajeSummaryModal/ViajeSummaryModal';
+import HistorialModal from '../components/HistorialModal/HistorialModal';
 
 const ViajesPage = () => {
   const { viajes, loading, fetchViajes, removeViaje } = useViajes();
@@ -14,7 +15,13 @@ const ViajesPage = () => {
   const [viajeAEditar, setViajeAEditar] = useState<any>(null);
   const [viajeResumen, setViajeResumen] = useState<any>(null);
   const [viajeABorrar, setViajeABorrar] = useState<any>(null);
+  const [viajeHistorial, setViajeHistorial] = useState<any>(null);
   const [isBorrando, setIsBorrando] = useState(false);
+
+  // Filtros
+  const [busqueda, setBusqueda] = useState('');
+  const [filtroTransportista, setFiltroTransportista] = useState('');
+  const [filtroEstado, setFiltroEstado] = useState('');
 
   useEffect(() => {
     Promise.all([getClientes(), getTransportistas()])
@@ -44,6 +51,55 @@ const ViajesPage = () => {
       setViajeABorrar(null);
     }
   };
+
+  // Filtrado de viajes
+  const viajesFiltrados = useMemo(() => {
+    if (!viajes) return [];
+    return viajes.filter((v: any) => {
+      let coincide = true;
+      
+      // Filtro por Estado
+      if (filtroEstado) {
+        const obs = (v.observaciones || '').trim().toLowerCase();
+        if (filtroEstado === 'sin_estado') {
+           if (obs === 'pagado' || obs === 'liquidado' || obs === 'preliquidacion') coincide = false;
+        } else {
+           if (obs !== filtroEstado) coincide = false;
+        }
+      }
+
+      // Filtro por Transportista
+      if (coincide && filtroTransportista && v.transportista_id?.toString() !== filtroTransportista) {
+        coincide = false;
+      }
+
+      // Filtro por Búsqueda Libre
+      if (coincide && busqueda) {
+        const b = busqueda.toLowerCase();
+        const chofer = (v.chofer || '').toLowerCase();
+        const cartaPorte = (v.carta_porte || '').toLowerCase();
+        const lugarDesde = (v.lugar_desde || '').toLowerCase();
+        const lugarHasta = (v.lugar_hasta || '').toLowerCase();
+        const kms = (v.kms || '').toString();
+        const kilos = (v.kilos || '').toString();
+        const importe = (v.importe || '').toString();
+
+        if (
+          !chofer.includes(b) && 
+          !cartaPorte.includes(b) && 
+          !lugarDesde.includes(b) && 
+          !lugarHasta.includes(b) &&
+          !kms.includes(b) &&
+          !kilos.includes(b) &&
+          !importe.includes(b)
+        ) {
+          coincide = false;
+        }
+      }
+
+      return coincide;
+    });
+  }, [viajes, filtroEstado, filtroTransportista, busqueda]);
 
   const columns = [
     { header: 'Ord.', accessorKey: 'ordenante' },
@@ -119,6 +175,15 @@ const ViajesPage = () => {
             </svg>
           </button>
           <button
+            title="Ver historial de cambios"
+            onClick={() => setViajeHistorial(row)}
+            className="p-1.5 text-indigo-500 hover:bg-indigo-50 rounded-lg transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </button>
+          <button
             title="Editar viaje"
             onClick={() => handleEditar(row)}
             className="p-1.5 text-amber-500 hover:bg-amber-50 rounded-lg transition-colors"
@@ -157,7 +222,78 @@ const ViajesPage = () => {
       </div>
 
       <div className="page-content">
-        <DataTable data={viajes} columns={columns} isLoading={loading} />
+        <div className="mb-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 items-center">
+          {/* Búsqueda */}
+          <div className="flex-1 w-full">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <input 
+                type="text" 
+                placeholder="Buscar por chofer, carta porte, origen, destino, importe..." 
+                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Filtro Transportista */}
+          <div className="w-full md:w-64">
+            <select 
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-shadow"
+              value={filtroTransportista}
+              onChange={(e) => setFiltroTransportista(e.target.value)}
+            >
+              <option value="">Todos los transportistas</option>
+              {transportistas.map(t => (
+                <option key={t.id} value={t.id}>{t.nomTrans}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Filtro Estado */}
+          <div className="w-full md:w-48">
+            <select 
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-shadow"
+              value={filtroEstado}
+              onChange={(e) => setFiltroEstado(e.target.value)}
+            >
+              <option value="">Todos los estados</option>
+              <option value="pagado">Pagado</option>
+              <option value="liquidado">Liquidado</option>
+              <option value="preliquidacion">Preliquidación</option>
+              <option value="sin_estado">Sin estado</option>
+            </select>
+          </div>
+          
+          {/* Botón limpiar */}
+          {(busqueda || filtroTransportista || filtroEstado) && (
+            <button
+              onClick={() => { setBusqueda(''); setFiltroTransportista(''); setFiltroEstado(''); }}
+              className="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors whitespace-nowrap"
+            >
+              Limpiar filtros
+            </button>
+          )}
+        </div>
+
+        <DataTable data={viajesFiltrados} columns={columns} isLoading={loading} />
+        
+        {!loading && viajesFiltrados.length === 0 && viajes.length > 0 && (
+          <div className="text-center py-10 bg-white border border-gray-100 rounded-xl mt-4">
+            <p className="text-gray-500">No se encontraron viajes que coincidan con los filtros aplicados.</p>
+            <button 
+              onClick={() => { setBusqueda(''); setFiltroTransportista(''); setFiltroEstado(''); }}
+              className="mt-2 text-blue-600 hover:underline"
+            >
+              Limpiar filtros
+            </button>
+          </div>
+        )}
       </div>
 
       <ViajeModal
@@ -173,6 +309,14 @@ const ViajesPage = () => {
         viaje={viajeResumen}
         transportistas={transportistas}
         clientes={clientes}
+      />
+
+      <HistorialModal
+        isOpen={!!viajeHistorial}
+        onClose={() => setViajeHistorial(null)}
+        entidad="Viaje"
+        entidadId={viajeHistorial?.id}
+        entidadNombre={`Orden ${viajeHistorial?.ordenante}`}
       />
 
       {viajeABorrar && (
@@ -216,3 +360,4 @@ const ViajesPage = () => {
 };
 
 export default ViajesPage;
+

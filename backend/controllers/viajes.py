@@ -2,6 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from decimal import Decimal
 from .. import models, schemas
+from .historial import registrar_cambio
 
 
 def cargar_viaje(db: Session, viaje: schemas.ViajeCreate, cliente_id: int, transportista_id: int):
@@ -57,11 +58,16 @@ def cargar_viaje(db: Session, viaje: schemas.ViajeCreate, cliente_id: int, trans
     db.add(db_viaje)
     db.commit()
     db.refresh(db_viaje)
+    
+    # Registrar historial
+    registrar_cambio(db, entidad="Viaje", entidad_id=db_viaje.id, accion="CREACION", detalles_dict={"ordenante": db_viaje.ordenante})
+    db.commit()
+    
     return db_viaje
 
 
 def leer_viajes(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Viaje).offset(skip).limit(limit).all()
+    return db.query(models.Viaje).order_by(models.Viaje.id.desc()).offset(skip).limit(limit).all()
 
 
 def actualizar_viaje(db: Session, viaje_id: int, viaje_update: schemas.ViajeUpdate):
@@ -81,16 +87,25 @@ def actualizar_viaje(db: Session, viaje_id: int, viaje_update: schemas.ViajeUpda
         elif str(c) == '2':
             update_data['condicion'] = 'DOS'
 
+    cambios = {}
     for key, value in update_data.items():
+        old_val = getattr(db_obj, key, None)
+        if old_val != value:
+            cambios[key] = {"old": old_val, "new": value}
         setattr(db_obj, key, value)
 
     tarifa_db = db.query(models.Tarifa).filter(models.Tarifa.cliente_id == db_obj.cliente_id).first()
     precio = tarifa_db.precio_km_ton if tarifa_db else db_obj.tarifa_aplicada
+    
+    if db_obj.tarifa_aplicada != precio:
+        cambios['tarifa_aplicada'] = {"old": db_obj.tarifa_aplicada, "new": precio}
     db_obj.tarifa_aplicada = precio
 
     if "importe" not in update_data:
         toneladas = Decimal(db_obj.kilos) / Decimal("1000")
-        db_obj.importe = Decimal(db_obj.kms) * toneladas * precio
+        nuevo_importe = Decimal(db_obj.kms) * toneladas * precio
+        if db_obj.importe != nuevo_importe:
+            db_obj.importe = nuevo_importe
 
     if "comision_8" not in update_data:
         db_obj.comision_8 = db_obj.importe * Decimal("0.08")
@@ -110,6 +125,9 @@ def actualizar_viaje(db: Session, viaje_id: int, viaje_update: schemas.ViajeUpda
     if "rentabilidad" not in update_data:
         db_obj.rentabilidad = db_obj.comision_8
 
+    if cambios:
+        registrar_cambio(db, entidad="Viaje", entidad_id=db_obj.id, accion="MODIFICACION", detalles_dict=cambios)
+
     db.commit()
     db.refresh(db_obj)
     return db_obj
@@ -121,6 +139,8 @@ def borrar_viaje(db: Session, viaje_id: int):
     
     # Delete associated adelantos
     db.query(models.Adelanto).filter(models.Adelanto.viaje_id == viaje_id).delete()
+    
+    registrar_cambio(db, entidad="Viaje", entidad_id=viaje_id, accion="ELIMINACION", detalles_dict={"ordenante": db_obj.ordenante})
     
     db.delete(db_obj)
     db.commit()

@@ -104,3 +104,13 @@ class Adelanto(Base):
     viaje_id = Column(Integer, ForeignKey("viajes.id"), nullable=True)  # Un adelanto -> un solo viaje (opcional)
     transportista = relationship("Transportista", back_populates="adelantos")
     viaje = relationship("Viaje", back_populates="adelantos")
+
+class HistorialCambio(Base):
+    __tablename__ = "historial_cambios"
+    id = Column(Integer, primary_key=True)
+    entidad = Column(String(50), nullable=False) # 'Viaje' o 'Adelanto'
+    entidad_id = Column(Integer, index=True, nullable=False)
+    accion = Column(String(50), nullable=False) # 'CREACION', 'MODIFICACION', 'ELIMINACION'
+    detalles = Column(Text) # JSON con detalles (qué cambió)
+    usuario = Column(String(100), default="Usuario del Sistema")
+    fecha = Column(DateTime, default=datetime.utcnow)

@@ -19,3 +19,7 @@ def leer_adelantos(skip: int = 0, limit: int = 100, db: Session = Depends(databa
 @router.put("/{adelanto_id}", response_model=schemas.Adelanto)
 def actualizar_adelanto(adelanto_id: int, adelanto_update: schemas.AdelantoUpdate, db: Session = Depends(database.get_db)):
     return controller.actualizar_adelanto(db, adelanto_id, adelanto_update)
+
+@router.delete("/{adelanto_id}")
+def borrar_adelanto(adelanto_id: int, db: Session = Depends(database.get_db)):
+    return controller.borrar_adelanto(db, adelanto_id)
