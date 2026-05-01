@@ -15,6 +15,12 @@ export const useClienteModal = ({ onSuccess, onClose }: UseClienteModalProps) =>
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    const cuitRegex = /^\d{2}-?\d{8}-?\d{1}$/;
+    if (!cuitRegex.test(cuit)) {
+      setError('El CUIT debe tener 11 dígitos numéricos (ej. 30-12345678-9 o 30123456789).');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
