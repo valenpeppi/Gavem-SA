@@ -173,7 +173,7 @@
 }
 
 .page-content {
-  @apply flex-1 overflow-hidden;
+  @apply flex-1 overflow-y-auto pr-2;
 }
 
 .btn-add {

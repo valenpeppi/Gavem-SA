@@ -122,7 +122,7 @@ const UsuariosPage = () => {
       <div className="page-header">
         <div>
           <h2 className="page-title">Usuarios del sistema</h2>
-          <p className="page-subtitle">Solo el superadministrador puede crear, dar de baja y reactivar usuarios.</p>
+          <p className="page-subtitle">Solo tu puedes crear, dar de baja y reactivar usuarios.</p>
         </div>
       </div>
 

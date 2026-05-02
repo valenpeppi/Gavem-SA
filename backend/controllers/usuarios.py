@@ -112,8 +112,16 @@ def change_my_password(db: Session, current_user_id: int, payload: schemas.Passw
     if len(payload.new_password) < 6:
         raise HTTPException(status_code=400, detail="La nueva contraseña debe tener al menos 6 caracteres")
 
+    # Update password
     usuario.password_hash = auth.hash_password(payload.new_password)
+    db.flush()  # Flush to write to DB without committing
+    
+    # Invalidate all sessions
     db.query(models.SessionToken).filter(models.SessionToken.usuario_id == usuario.id).update({"activo": False})
+    db.flush()  # Flush session changes
+    
+    # Commit everything at once
     db.commit()
     db.refresh(usuario)
+    
     return usuario
