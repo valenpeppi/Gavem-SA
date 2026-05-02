@@ -94,7 +94,7 @@
 }
 
 .top-header-avatar {
-  @apply w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold shadow-md;
+  @apply w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold shadow-md cursor-pointer hover:bg-blue-700 transition-colors;
 }
 
 .content-area {

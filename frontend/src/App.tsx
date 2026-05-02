@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Truck, Users, Map, DollarSign, Menu, Bell, CreditCard, LogOut, TrendingUp, Shield } from 'lucide-react';
+import { Truck, Users, Map, DollarSign, Menu, Bell, CreditCard, LogOut, TrendingUp, Shield, User } from 'lucide-react';
 import DashboardPage from './pages/DashboardPage';
 import ClientesPage from './pages/ClientesPage';
 import TransportistasPage from './pages/TransportistasPage';
@@ -8,8 +8,8 @@ import TarifasPage from './pages/TarifasPage';
 import AdelantosPage from './pages/AdelantosPage';
 import LoginPage from './pages/LoginPage';
 import UsuariosPage from './pages/UsuariosPage';
+import ProfilePage from './pages/ProfilePage';
 import { getAuthToken, getCurrentUser, getStoredUser, logout } from './services/api';
-import ProfileModal from './components/ProfileModal/ProfileModal';
 
 const TAB_LABELS: Record<string, string> = {
   dashboard: 'Panel de Control',
@@ -19,13 +19,13 @@ const TAB_LABELS: Record<string, string> = {
   tarifas: 'Tarifas',
   adelantos: 'Adelantos',
   usuarios: 'Usuarios',
+  perfil: 'Mi Perfil',
 };
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isAuthenticated, setIsAuthenticated] = useState(() => !!getAuthToken());
   const [authUser, setAuthUser] = useState<any>(() => getStoredUser());
-  const [showProfile, setShowProfile] = useState(false);
   const [loadingAuth, setLoadingAuth] = useState(true);
 
   useEffect(() => {
@@ -187,11 +187,13 @@ function App() {
             <button className="top-header-bell">
               <Bell className="w-5 h-5" />
             </button>
-            <div className="top-header-avatar">
-              <div onClick={() => setShowProfile(true)} title="Mi perfil" style={{ cursor: 'pointer' }}>
-                {(authUser?.nombre?.[0] || 'G').toUpperCase()}
-              </div>
-            </div>
+            <button
+              onClick={() => setActiveTab('perfil')}
+              className="top-header-avatar cursor-pointer hover:bg-blue-700 transition-colors"
+              title="Mi perfil"
+            >
+              {(authUser?.nombre?.[0] || 'G').toUpperCase()}
+            </button>
           </div>
         </header>
 
@@ -204,16 +206,9 @@ function App() {
           {activeTab === 'tarifas' && <TarifasPage />}
           {activeTab === 'adelantos' && <AdelantosPage />}
           {activeTab === 'usuarios' && authUser?.rol === 'superadministrador' && <UsuariosPage />}
+          {activeTab === 'perfil' && <ProfilePage />}
         </div>
       </main>
-      {showProfile && (
-        <ProfileModal
-          onClose={() => setShowProfile(false)}
-          onUpdated={(user) => {
-            setAuthUser(user);
-          }}
-        />
-      )}
     </div>
   );
 }

@@ -27,6 +27,24 @@ def crear_usuario(
     return controller.crear_usuario(db, payload)
 
 
+@router.put("/me", response_model=schemas.Usuario)
+def update_my_profile(
+    payload: schemas.ProfileUpdate,
+    db: Session = Depends(database.get_db),
+    current_user: models.Usuario = Depends(auth.get_current_user),
+):
+    return controller.update_my_profile(db, cast(int, current_user.id), payload)
+
+
+@router.put("/me/password")
+def change_my_password(
+    payload: schemas.PasswordChange,
+    db: Session = Depends(database.get_db),
+    current_user: models.Usuario = Depends(auth.get_current_user),
+):
+    return controller.change_my_password(db, cast(int, current_user.id), payload)
+
+
 @router.put("/{usuario_id}", response_model=schemas.Usuario)
 def actualizar_usuario(
     usuario_id: int,
@@ -53,21 +71,3 @@ def reactivar_usuario(
     _: models.Usuario = Depends(auth.require_superadmin),
 ):
     return controller.reactivar_usuario(db, usuario_id)
-
-
-@router.put("/me", response_model=schemas.Usuario)
-def update_my_profile(
-    payload: schemas.ProfileUpdate,
-    db: Session = Depends(database.get_db),
-    current_user: models.Usuario = Depends(auth.get_current_user),
-):
-    return controller.update_my_profile(db, cast(int, current_user.id), payload)
-
-
-@router.put("/me/password")
-def change_my_password(
-    payload: schemas.PasswordChange,
-    db: Session = Depends(database.get_db),
-    current_user: models.Usuario = Depends(auth.get_current_user),
-):
-    return controller.change_my_password(db, cast(int, current_user.id), payload)
