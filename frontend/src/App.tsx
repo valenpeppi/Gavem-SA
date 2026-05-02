@@ -9,6 +9,7 @@ import AdelantosPage from './pages/AdelantosPage';
 import LoginPage from './pages/LoginPage';
 import UsuariosPage from './pages/UsuariosPage';
 import { getAuthToken, getCurrentUser, getStoredUser, logout } from './services/api';
+import ProfileModal from './components/ProfileModal/ProfileModal';
 
 const TAB_LABELS: Record<string, string> = {
   dashboard: 'Panel de Control',
@@ -24,6 +25,7 @@ function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isAuthenticated, setIsAuthenticated] = useState(() => !!getAuthToken());
   const [authUser, setAuthUser] = useState<any>(() => getStoredUser());
+  const [showProfile, setShowProfile] = useState(false);
   const [loadingAuth, setLoadingAuth] = useState(true);
 
   useEffect(() => {
@@ -186,7 +188,9 @@ function App() {
               <Bell className="w-5 h-5" />
             </button>
             <div className="top-header-avatar">
-              {(authUser?.nombre?.[0] || 'G').toUpperCase()}
+              <div onClick={() => setShowProfile(true)} title="Mi perfil" style={{ cursor: 'pointer' }}>
+                {(authUser?.nombre?.[0] || 'G').toUpperCase()}
+              </div>
             </div>
           </div>
         </header>
@@ -202,6 +206,14 @@ function App() {
           {activeTab === 'usuarios' && authUser?.rol === 'superadministrador' && <UsuariosPage />}
         </div>
       </main>
+      {showProfile && (
+        <ProfileModal
+          onClose={() => setShowProfile(false)}
+          onUpdated={(user) => {
+            setAuthUser(user);
+          }}
+        />
+      )}
     </div>
   );
 }

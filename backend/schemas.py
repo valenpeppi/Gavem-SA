@@ -224,6 +224,18 @@ class Usuario(UsuarioBase):
     actualizado_en: datetime
     model_config = ConfigDict(from_attributes=True)
 
+
+class ProfileUpdate(BaseModel):
+    nombre: Optional[str] = None
+    apellido: Optional[str] = None
+    telefono: Optional[str] = None
+
+
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: str
+    confirm_password: str
+
 class LoginRequest(BaseModel):
     username: str
     password: str

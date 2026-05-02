@@ -76,3 +76,44 @@ def reactivar_usuario(db: Session, usuario_id: int):
     db.commit()
     db.refresh(usuario)
     return usuario
+
+
+def update_my_profile(db: Session, current_user_id: int, payload: schemas.ProfileUpdate):
+    usuario = cast(Any, db.query(models.Usuario).filter(models.Usuario.id == current_user_id).first())
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    data = payload.model_dump(exclude_unset=True)
+
+    if "nombre" in data and data["nombre"] is not None:
+        usuario.nombre = str(data["nombre"]).strip()
+    if "apellido" in data and data["apellido"] is not None:
+        usuario.apellido = str(data["apellido"]).strip()
+    if "telefono" in data:
+        usuario.telefono = str(data["telefono"] or "").strip()
+
+    db.commit()
+    db.refresh(usuario)
+    return usuario
+
+
+def change_my_password(db: Session, current_user_id: int, payload: schemas.PasswordChange):
+    usuario = cast(Any, db.query(models.Usuario).filter(models.Usuario.id == current_user_id).first())
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    # validate current password
+    if not auth.verify_password(payload.current_password, usuario.password_hash):
+        raise HTTPException(status_code=400, detail="Contraseña actual incorrecta")
+
+    if payload.new_password != payload.confirm_password:
+        raise HTTPException(status_code=400, detail="La nueva contraseña y la confirmación no coinciden")
+
+    if len(payload.new_password) < 6:
+        raise HTTPException(status_code=400, detail="La nueva contraseña debe tener al menos 6 caracteres")
+
+    usuario.password_hash = auth.hash_password(payload.new_password)
+    db.query(models.SessionToken).filter(models.SessionToken.usuario_id == usuario.id).update({"activo": False})
+    db.commit()
+    db.refresh(usuario)
+    return usuario

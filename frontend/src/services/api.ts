@@ -75,6 +75,17 @@ export const logout = async () => {
   }
 };
 
+export const updateMyProfile = async (profileData: { nombre?: string; apellido?: string; telefono?: string }) => {
+  const response = await api.put('/usuarios/me', profileData);
+  localStorage.setItem(AUTH_USER_KEY, JSON.stringify(response.data));
+  return response.data;
+};
+
+export const changeMyPassword = async (payload: { current_password: string; new_password: string; confirm_password: string }) => {
+  const response = await api.put('/usuarios/me/password', payload);
+  return response.data;
+};
+
 // --- CLIENTES ---
 export const getClientes = async () => {
   const response = await api.get('/clientes/');
