@@ -4,7 +4,7 @@ from sqlalchemy import func
 from .. import models, schemas
 from .historial import registrar_cambio
 
-def cargar_adelanto(db: Session, adelanto: schemas.AdelantoCreate):
+def cargar_adelanto(db: Session, adelanto: schemas.AdelantoCreate, usuario: models.Usuario):
     adelanto_data = adelanto.model_dump()
     if hasattr(adelanto_data.get('tipo'), 'name'):
         adelanto_data['tipo'] = adelanto_data['tipo'].name
@@ -23,7 +23,18 @@ def cargar_adelanto(db: Session, adelanto: schemas.AdelantoCreate):
     db.commit()
     db.refresh(db_obj)
     
-    registrar_cambio(db, entidad="Adelanto", entidad_id=db_obj.id, accion="CREACION", detalles_dict={"nro_vale": db_obj.nro_vale, "monto": db_obj.monto_total})
+    registrar_cambio(
+        db,
+        entidad="Adelanto",
+        entidad_id=db_obj.id,
+        accion="CREACION",
+        detalles_dict={"nro_vale": db_obj.nro_vale, "monto": db_obj.monto_total},
+        usuario=usuario.username,
+        empleado_id=usuario.id,
+        empleado_nombre=usuario.nombre,
+        empleado_apellido=usuario.apellido,
+        empleado_telefono=usuario.telefono,
+    )
     db.commit()
     
     return db_obj
@@ -33,7 +44,7 @@ def leer_adelantos(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Adelanto).order_by(models.Adelanto.id.desc()).offset(skip).limit(limit).all()
 
 
-def actualizar_adelanto(db: Session, adelanto_id: int, adelanto_update: schemas.AdelantoUpdate):
+def actualizar_adelanto(db: Session, adelanto_id: int, adelanto_update: schemas.AdelantoUpdate, usuario: models.Usuario):
     db_obj = db.query(models.Adelanto).filter(models.Adelanto.id == adelanto_id).first()
     if not db_obj:
         raise HTTPException(status_code=404, detail="Adelanto no encontrado")
@@ -61,18 +72,40 @@ def actualizar_adelanto(db: Session, adelanto_id: int, adelanto_update: schemas.
         setattr(db_obj, key, value)
 
     if cambios:
-        registrar_cambio(db, entidad="Adelanto", entidad_id=db_obj.id, accion="MODIFICACION", detalles_dict=cambios)
+        registrar_cambio(
+            db,
+            entidad="Adelanto",
+            entidad_id=db_obj.id,
+            accion="MODIFICACION",
+            detalles_dict=cambios,
+            usuario=usuario.username,
+            empleado_id=usuario.id,
+            empleado_nombre=usuario.nombre,
+            empleado_apellido=usuario.apellido,
+            empleado_telefono=usuario.telefono,
+        )
 
     db.commit()
     db.refresh(db_obj)
     return db_obj
 
-def borrar_adelanto(db: Session, adelanto_id: int):
+def borrar_adelanto(db: Session, adelanto_id: int, usuario: models.Usuario):
     db_obj = db.query(models.Adelanto).filter(models.Adelanto.id == adelanto_id).first()
     if not db_obj:
         raise HTTPException(status_code=404, detail="Adelanto no encontrado")
         
-    registrar_cambio(db, entidad="Adelanto", entidad_id=adelanto_id, accion="ELIMINACION", detalles_dict={"nro_vale": db_obj.nro_vale})
+    registrar_cambio(
+        db,
+        entidad="Adelanto",
+        entidad_id=adelanto_id,
+        accion="ELIMINACION",
+        detalles_dict={"nro_vale": db_obj.nro_vale},
+        usuario=usuario.username,
+        empleado_id=usuario.id,
+        empleado_nombre=usuario.nombre,
+        empleado_apellido=usuario.apellido,
+        empleado_telefono=usuario.telefono,
+    )
     
     # If it was associated with a viaje, remove the consumed value
     if db_obj.viaje_id:

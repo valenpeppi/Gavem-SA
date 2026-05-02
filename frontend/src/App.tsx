@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Truck, Users, Map, DollarSign, Menu, Bell, CreditCard, LogOut, TrendingUp } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Truck, Users, Map, DollarSign, Menu, Bell, CreditCard, LogOut, TrendingUp, Shield } from 'lucide-react';
 import DashboardPage from './pages/DashboardPage';
 import ClientesPage from './pages/ClientesPage';
 import TransportistasPage from './pages/TransportistasPage';
@@ -7,6 +7,8 @@ import ViajesPage from './pages/ViajesPage';
 import TarifasPage from './pages/TarifasPage';
 import AdelantosPage from './pages/AdelantosPage';
 import LoginPage from './pages/LoginPage';
+import UsuariosPage from './pages/UsuariosPage';
+import { getAuthToken, getCurrentUser, getStoredUser, logout } from './services/api';
 
 const TAB_LABELS: Record<string, string> = {
   dashboard: 'Panel de Control',
@@ -15,21 +17,52 @@ const TAB_LABELS: Record<string, string> = {
   transportistas: 'Transportistas',
   tarifas: 'Tarifas',
   adelantos: 'Adelantos',
+  usuarios: 'Usuarios',
 };
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    () => sessionStorage.getItem('gavem_auth') === 'true'
-  );
+  const [isAuthenticated, setIsAuthenticated] = useState(() => !!getAuthToken());
+  const [authUser, setAuthUser] = useState<any>(() => getStoredUser());
+  const [loadingAuth, setLoadingAuth] = useState(true);
 
-  const handleLogout = () => {
-    sessionStorage.removeItem('gavem_auth');
+  useEffect(() => {
+    const token = getAuthToken();
+    if (!token) {
+      setLoadingAuth(false);
+      return;
+    }
+
+    getCurrentUser()
+      .then((user) => {
+        setAuthUser(user);
+        setIsAuthenticated(true);
+      })
+      .catch(() => {
+        setAuthUser(null);
+        setIsAuthenticated(false);
+      })
+      .finally(() => setLoadingAuth(false));
+  }, []);
+
+  const handleLogout = async () => {
+    await logout();
+    setAuthUser(null);
     setIsAuthenticated(false);
+    setActiveTab('dashboard');
   };
 
+  const handleLogin = (user: any) => {
+    setAuthUser(user);
+    setIsAuthenticated(true);
+  };
+
+  if (loadingAuth) {
+    return <div className="flex items-center justify-center h-screen text-gray-500">Cargando sesión...</div>;
+  }
+
   if (!isAuthenticated) {
-    return <LoginPage onLogin={() => setIsAuthenticated(true)} />;
+    return <LoginPage onLogin={handleLogin} />;
   }
 
   return (
@@ -109,6 +142,17 @@ function App() {
                 Tarifas
               </button>
             </li>
+            {authUser?.rol === 'superadministrador' && (
+              <li>
+                <button
+                  onClick={() => setActiveTab('usuarios')}
+                  className={`sidebar-link ${activeTab === 'usuarios' ? 'sidebar-link--active' : ''}`}
+                >
+                  <Shield className="sidebar-link-icon" />
+                  Usuarios
+                </button>
+              </li>
+            )}
           </ul>
         </nav>
 
@@ -142,7 +186,7 @@ function App() {
               <Bell className="w-5 h-5" />
             </button>
             <div className="top-header-avatar">
-              G
+              {(authUser?.nombre?.[0] || 'G').toUpperCase()}
             </div>
           </div>
         </header>
@@ -155,6 +199,7 @@ function App() {
           {activeTab === 'viajes' && <ViajesPage />}
           {activeTab === 'tarifas' && <TarifasPage />}
           {activeTab === 'adelantos' && <AdelantosPage />}
+          {activeTab === 'usuarios' && authUser?.rol === 'superadministrador' && <UsuariosPage />}
         </div>
       </main>
     </div>

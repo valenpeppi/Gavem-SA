@@ -15,7 +15,18 @@ class CustomJSONEncoder(json.JSONEncoder):
             return obj.name
         return super().default(obj)
 
-def registrar_cambio(db: Session, entidad: str, entidad_id: int, accion: str, detalles_dict: dict = None, usuario: str = "Usuario del Sistema"):
+def registrar_cambio(
+    db: Session,
+    entidad: str,
+    entidad_id: int,
+    accion: str,
+    detalles_dict: dict = None,
+    usuario: str = "Usuario del Sistema",
+    empleado_id: int = None,
+    empleado_nombre: str = None,
+    empleado_apellido: str = None,
+    empleado_telefono: str = None,
+):
     detalles_str = None
     if detalles_dict:
         detalles_str = json.dumps(detalles_dict, cls=CustomJSONEncoder)
@@ -25,7 +36,11 @@ def registrar_cambio(db: Session, entidad: str, entidad_id: int, accion: str, de
         entidad_id=entidad_id,
         accion=accion,
         detalles=detalles_str,
-        usuario=usuario
+        usuario=usuario,
+        empleado_id=empleado_id,
+        empleado_nombre=empleado_nombre,
+        empleado_apellido=empleado_apellido,
+        empleado_telefono=empleado_telefono,
     )
     db.add(historial)
     # No we don't commit here, we assume the caller commits

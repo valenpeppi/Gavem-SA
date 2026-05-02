@@ -10,6 +10,71 @@ const api = axios.create({
   },
 });
 
+const AUTH_TOKEN_KEY = 'gavem_access_token';
+const AUTH_USER_KEY = 'gavem_user';
+
+export const getAuthToken = (): string | null => localStorage.getItem(AUTH_TOKEN_KEY);
+
+export const getStoredUser = () => {
+  const raw = localStorage.getItem(AUTH_USER_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+};
+
+export const setAuthSession = (token: string, user: any) => {
+  localStorage.setItem(AUTH_TOKEN_KEY, token);
+  localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
+};
+
+export const clearAuthSession = () => {
+  localStorage.removeItem(AUTH_TOKEN_KEY);
+  localStorage.removeItem(AUTH_USER_KEY);
+};
+
+api.interceptors.request.use((config) => {
+  const token = getAuthToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error?.response?.status === 401) {
+      clearAuthSession();
+    }
+    return Promise.reject(error);
+  }
+);
+
+// --- AUTH ---
+export const login = async (username: string, password: string) => {
+  const response = await api.post('/auth/login', { username, password });
+  const { access_token, user } = response.data;
+  setAuthSession(access_token, user);
+  return response.data;
+};
+
+export const getCurrentUser = async () => {
+  const response = await api.get('/auth/me');
+  localStorage.setItem(AUTH_USER_KEY, JSON.stringify(response.data));
+  return response.data;
+};
+
+export const logout = async () => {
+  try {
+    await api.post('/auth/logout');
+  } finally {
+    clearAuthSession();
+  }
+};
+
 // --- CLIENTES ---
 export const getClientes = async () => {
   const response = await api.get('/clientes/');
@@ -27,9 +92,9 @@ export const getTransportistas = async () => {
   return response.data;
 };
 
-export const crearTransportista = async (transData: { 
-  codTrans: number; 
-  nomTrans: string; 
+export const crearTransportista = async (transData: {
+  codTrans: number;
+  nomTrans: string;
   cuitTrans: string;
   telTrans?: string;
   localidad?: string;
@@ -146,6 +211,39 @@ export const actualizarAdelanto = async (adelantoId: number, data: { viaje_id?: 
 // --- HISTORIAL ---
 export const getHistorial = async (params?: { entidad?: string, entidad_id?: number }) => {
   const response = await api.get('/historial/', { params });
+  return response.data;
+};
+
+// --- USUARIOS (solo superadministrador) ---
+export const getUsuarios = async () => {
+  const response = await api.get('/usuarios/');
+  return response.data;
+};
+
+export const crearUsuario = async (usuarioData: {
+  username: string;
+  password: string;
+  nombre: string;
+  apellido: string;
+  telefono?: string;
+  rol: 'superadministrador' | 'operador';
+}) => {
+  const response = await api.post('/usuarios/', usuarioData);
+  return response.data;
+};
+
+export const desactivarUsuario = async (usuarioId: number) => {
+  const response = await api.put(`/usuarios/${usuarioId}/desactivar`);
+  return response.data;
+};
+
+export const reactivarUsuario = async (usuarioId: number) => {
+  const response = await api.put(`/usuarios/${usuarioId}/reactivar`);
+  return response.data;
+};
+
+export const actualizarUsuario = async (usuarioId: number, data: any) => {
+  const response = await api.put(`/usuarios/${usuarioId}`, data);
   return response.data;
 };
 

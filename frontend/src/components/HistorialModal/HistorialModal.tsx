@@ -107,6 +107,12 @@ const HistorialModal: React.FC<HistorialModalProps> = ({ isOpen, onClose, entida
                       </span>
                     </div>
                     <p className="text-xs text-blue-600 font-medium mb-2">Por: {h.usuario}</p>
+                    {(h.empleado_id || h.empleado_nombre || h.empleado_apellido || h.empleado_telefono) && (
+                      <p className="text-xs text-gray-500 mb-2">
+                        Empleado #{h.empleado_id ?? '-'} · {h.empleado_nombre ?? ''} {h.empleado_apellido ?? ''}
+                        {h.empleado_telefono ? ` · Tel: ${h.empleado_telefono}` : ''}
+                      </p>
+                    )}
                     {formatDetalles(h.detalles)}
                   </div>
                 </div>

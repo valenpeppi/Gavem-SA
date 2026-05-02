@@ -12,6 +12,10 @@ class TipoAdelanto(enum.Enum):
     VALE_COMBUSTIBLE = "Vale Combustible"
     VALE_EFECTIVO = "Vale Efectivo"
 
+class RolUsuario(enum.Enum):
+    SUPERADMINISTRADOR = "superadministrador"
+    OPERADOR = "operador"
+
 class Cliente(Base):
     __tablename__ = "clientes"
     id = Column(Integer, primary_key=True, index=True)
@@ -105,6 +109,30 @@ class Adelanto(Base):
     transportista = relationship("Transportista", back_populates="adelantos")
     viaje = relationship("Viaje", back_populates="adelantos")
 
+class Usuario(Base):
+    __tablename__ = "usuarios"
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(50), unique=True, index=True, nullable=False)
+    password_hash = Column("hashed_password", String(255), nullable=False)
+    nombre = Column(String(100), nullable=False)
+    apellido = Column(String(100), nullable=False)
+    telefono = Column(String(50), nullable=True)
+    rol = Column(String(30), nullable=False, default=RolUsuario.OPERADOR.value)
+    activo = Column(Boolean, default=True)
+    creado_en = Column(DateTime, default=datetime.utcnow)
+    actualizado_en = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    sesiones = relationship("SessionToken", back_populates="usuario", cascade="all, delete-orphan")
+
+class SessionToken(Base):
+    __tablename__ = "session_tokens"
+    id = Column(Integer, primary_key=True)
+    token = Column(String(255), unique=True, index=True, nullable=False)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False, index=True)
+    expiracion = Column(DateTime, nullable=False)
+    activo = Column(Boolean, default=True)
+    creado_en = Column(DateTime, default=datetime.utcnow)
+    usuario = relationship("Usuario", back_populates="sesiones")
+
 class HistorialCambio(Base):
     __tablename__ = "historial_cambios"
     id = Column(Integer, primary_key=True)
@@ -113,4 +141,8 @@ class HistorialCambio(Base):
     accion = Column(String(50), nullable=False) # 'CREACION', 'MODIFICACION', 'ELIMINACION'
     detalles = Column(Text) # JSON con detalles (qué cambió)
     usuario = Column(String(100), default="Usuario del Sistema")
+    empleado_id = Column(Integer, ForeignKey("usuarios.id"), nullable=True, index=True)
+    empleado_nombre = Column(String(100), nullable=True)
+    empleado_apellido = Column(String(100), nullable=True)
+    empleado_telefono = Column(String(50), nullable=True)
     fecha = Column(DateTime, default=datetime.utcnow)

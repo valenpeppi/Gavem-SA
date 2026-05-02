@@ -1,6 +1,6 @@
 from backend.database import engine, Base
 # Importamos los modelos para que SQLAlchemy registre las tablas en el Base
-from backend.models import Cliente, Transportista, Viaje, Tarifa, Adelanto
+from backend.models import Cliente, Transportista, Viaje, Tarifa, Adelanto, Usuario, SessionToken, HistorialCambio
 
 def create_tables():
     print("🚀 Iniciando la creación de tablas en PostgreSQL para GAVEM SA...")

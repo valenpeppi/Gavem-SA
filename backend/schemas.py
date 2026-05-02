@@ -12,6 +12,10 @@ class TipoAdelanto(str, enum.Enum):
     VALE_COMBUSTIBLE = "Vale Combustible"
     VALE_EFECTIVO = "Vale Efectivo"
 
+class RolUsuario(str, enum.Enum):
+    SUPERADMINISTRADOR = "superadministrador"
+    OPERADOR = "operador"
+
 class TarifaBase(BaseModel):
     precio_km_ton: Decimal
     fecha_desde: datetime
@@ -183,6 +187,10 @@ class HistorialCambioBase(BaseModel):
     accion: str
     detalles: Optional[str] = None
     usuario: Optional[str] = "Usuario del Sistema"
+    empleado_id: Optional[int] = None
+    empleado_nombre: Optional[str] = None
+    empleado_apellido: Optional[str] = None
+    empleado_telefono: Optional[str] = None
 
 class HistorialCambioCreate(HistorialCambioBase):
     pass
@@ -191,3 +199,36 @@ class HistorialCambio(HistorialCambioBase):
     id: int
     fecha: datetime
     model_config = ConfigDict(from_attributes=True)
+
+class UsuarioBase(BaseModel):
+    username: str
+    nombre: str
+    apellido: str
+    telefono: Optional[str] = None
+    rol: RolUsuario = RolUsuario.OPERADOR
+
+class UsuarioCreate(UsuarioBase):
+    password: str
+
+class UsuarioUpdate(BaseModel):
+    nombre: Optional[str] = None
+    apellido: Optional[str] = None
+    telefono: Optional[str] = None
+    rol: Optional[RolUsuario] = None
+    password: Optional[str] = None
+
+class Usuario(UsuarioBase):
+    id: int
+    activo: bool
+    creado_en: datetime
+    actualizado_en: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: Usuario

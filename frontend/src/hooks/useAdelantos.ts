@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { getAdelantos } from '../services/api';
 
 export const useAdelantos = () => {
   const [adelantos, setAdelantos] = useState([]);
@@ -7,8 +8,7 @@ export const useAdelantos = () => {
   const fetchAdelantos = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/adelantos/');
-      const data = await res.json();
+      const data = await getAdelantos();
       setAdelantos(data);
     } catch (error) {
       console.error('Error al obtener adelantos', error);
